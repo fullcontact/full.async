@@ -14,7 +14,7 @@ helper functions and macros for dealing with exceptions in a simple manner:
 
 * `go-try`: equivalent of `go` but catches any exceptions thrown and returns via
 resulting channel
-* `<?`, `alts?`, `<??`: equivalents of `<!`, `alts!` and `<??` but if the value 
+* `<?`, `alts?`, `<??`: equivalents of `<!`, `alts!` and `<!!` but if the value 
 is an exception, it will get thrown
 
 ## Retry Logic
