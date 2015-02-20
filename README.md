@@ -48,8 +48,9 @@ be used within a `go` block.
 * `<<!!`, `<<??`: takes all items from the channel and returns as a lazy 
 sequence. Will block the execution thread when no items are available (yet) 
 and channel is not closed.
-* `<!all`, `<?all`: takes all items from a collection of channels and returns
-in a single collection. Note that the ordering of results is not deterministic.
+* `<!*`, `<?*`, `<!!*`, `<??*` takes one item from each input channel and 
+returns in a single collection. Results have the same ordering as input 
+channels.
 
 ## Parallel Processing
 

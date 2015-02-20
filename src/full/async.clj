@@ -104,30 +104,38 @@
       (when next
         (cons next (<<?? ch))))))
 
-(defmacro <!all
-  "Takes and returns as collection results from collection of channels. Note that results
-  may be returned in different order than channels."
+(defmacro <!*
+  "Takes one result from each channel and returns as collection. The results maintain the order of collections."
   [chs]
   `(let [chs# ~chs]
-     (->> (merge chs#)
-          (into (empty chs#))
-          (<!))))
+     (loop [chs# chs#
+            results# (empty chs#)]
+       (if-let [head# (first chs#)]
+         (->> (<! head#)
+              (conj results#)
+              (recur (rest chs#)))
+         results#))))
 
-(defmacro <?all
-  "Takes and returns as a collection results from collection of channels.Throws if any result
-  is an exception. Note that results may be returned in different order than channels."
+(defmacro <?*
+  "Takes one result from each channel and returns as collection. The results maintain the order of collections.
+  Throws if any of channels return exception."
   [chs]
-  `(->> (<!all ~chs)
-        (core/map throw-if-throwable)
-        (doall)))
+  `(let [chs# ~chs]
+     (loop [chs# chs#
+            results# (empty chs#)]
+       (if-let [head# (first chs#)]
+         (->> (<? head#)
+              (conj results#)
+              (recur (rest chs#)))
+         results#))))
 
-(defn <!!all
+(defn <!!*
   [chs]
-  (<!! (go (<!all chs))))
+  (<!! (go (<!* chs))))
 
-(defn <??all
+(defn <??*
   [chs]
-  (<?? (go-try (<?all chs))))
+  (<?? (go-try (<?* chs))))
 
 (defn pmap-chan>>
   "Takes objects from ch, asynchrously applies function f> (function should return channel), takes

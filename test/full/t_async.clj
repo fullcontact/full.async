@@ -53,13 +53,13 @@
     => (throws Exception))
 
   (fact
-    (set (<!! (go (<!all [(go "1") (go "2")]))))
-    => #{"1" "2"})
+    (<!!* [(go "1") (go "2")])
+    => ["1" "2"])
 
   (fact
-    (set (<!! (go (<?all [(go "1") (go "2")]))))
-    => #{"1" "2"})
+    (<??* [(go "1") (go "2")])
+    => ["1" "2"])
 
   (fact
-    (<?? (go-try (<?all [(go "1") (go (Exception.))])))
-  => (throws Exception)))
+    (<??* [(go "1") (go (Exception. ))])
+    => (throws Exception)))
