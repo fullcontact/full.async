@@ -8,9 +8,9 @@ with a number of convenience methods.
 Exception handling is an area for which core.async doesn't have an extensive 
 support out of the box. If something within a `go` block throws an exception, it 
 will be logged but the block will simply return `nil` hiding any infromation 
-about the actual exception. You could wrap body of each `go` block but that's 
-not very convient. full.async provide a set of helper functions and macros for 
-dealing  with exceptions in a simple manner:
+about the actual exception. You could wrap body of each `go` block within an 
+exception handler but that's  not very convenient. Full.async provide a set of 
+helper functions and macros for dealing  with exceptions in a simple manner:
 
 * `go-try`: equivalent of `go` but catches any exceptions thrown and returns via
 resulting channel
