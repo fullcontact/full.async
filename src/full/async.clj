@@ -23,9 +23,9 @@
 (def close! async/close!)
 
 (defn throw-if-throwable
-  "Helper method that checks if x is Throwable and if yes, wrap's it in a new
+  "Helper method that checks if x is Throwable and if yes, wraps it in a new
   exception, passing though ex-data if any, and throws it. The wrapping is done
-  to maintain full stack trace when jumping between multiple contexts."
+  to maintain a full stack trace when jumping between multiple contexts."
   [x]
   (if (instance? Throwable x)
     (throw (ex-info (.getMessage x)
@@ -34,8 +34,8 @@
     x))
 
 (defmacro <?
-  "Same as core.async <! but throws an exception if channel returns a throwable
-  object. Also will not crash if channel is nil."
+  "Same as core.async <! but throws an exception if the channel returns a
+  throwable object. Also will not crash if channel is nil."
   [ch]
   `(throw-if-throwable (let [ch# ~ch] (when ch# (<! ch#)))))
 
@@ -44,20 +44,21 @@
   `(first (<? ~ch)))
 
 (defn <??
-  "Same as core.async <!! but throws an exception if channel returns a throwable
-  object. Also will not crash if channel is nil."
+  "Same as core.async <!! but throws an exception if the channel returns a
+  throwable object. Also will not crash if channel is nil."
   [ch]
   (throw-if-throwable (when ch (<!! ch))))
 
 (defmacro alts?
-  "Same as core.async alts! but throws an exception if channel returns a
-  throwabler object."
+  "Same as core.async alts! but throws an exception if the channel returns a
+  throwable object."
   [ports]
   `(throw-if-throwable (alts! ~ports)))
 
 (defmacro go-try
-  "Asynchronously executes the body in go block. Returns a channel which will
-  receive the result of the body when completed or exception if one is thrown."
+  "Asynchronously executes the body in a go block. Returns a channel which
+  will receive the result of the body when completed or an exception if one
+  is thrown."
   [& body]
   `(go (try ~@body (catch Throwable e# e#))))
 
@@ -77,15 +78,15 @@
            res#)))))
 
 (defmacro <<!
-  "Takes multiple results from channel and returns as a vector.
-  Input channel must be closed."
+  "Takes multiple results from a channel and returns them as a vector.
+  The input channel must be closed."
   [ch]
   `(let [ch# ~ch]
      (<! (into [] ch#))))
 
 (defmacro <<?
-  "Takes multiple results from channel and returns as a vector. Throws if any
-  result is an exception."
+  "Takes multiple results from a channel and returns them as a vector.
+  Throws if any result is an exception."
   [ch]
   `(->> (<<! ~ch)
         (core/map throw-if-throwable)
@@ -107,8 +108,8 @@
         (cons next (<<?? ch))))))
 
 (defmacro <!*
-  "Takes one result from each channel and returns as collection. The results
-  maintain the order of collections."
+  "Takes one result from each channel and returns them as a collection.
+  The results maintain the order of channels."
   [chs]
   `(let [chs# ~chs]
      (loop [chs# chs#
@@ -120,9 +121,9 @@
          results#))))
 
 (defmacro <?*
-  "Takes one result from each channel and returns as collection. The results
-  maintain the order of collections. Throws if any of the channels
-  return an exception."
+  "Takes one result from each channel and returns them as a collection.
+  The results maintain the order of channels. Throws if any of the
+  channels returns an exception."
   [chs]
   `(let [chs# ~chs]
      (loop [chs# chs#
@@ -143,10 +144,10 @@
 
 (defn pmap-chan>>
   "Takes objects from ch, asynchrously applies function f> (function should
-  return channel), takes result from returned channel and if it's not nil, puts
-  it in the results channel. Returns the results channel. Closes the returned
-  channel when input channel has been completely consumed and all objects
-  have been processed."
+  return channel), takes the result from the returned channel and if it's not
+  nil, puts it in the results channel. Returns the results channel. Closes the
+  returned channel when the input channel has been completely consumed and all
+  objects have been processed."
   [f> parallelism ch]
   (let [results (chan)
         threads (atom parallelism)]
