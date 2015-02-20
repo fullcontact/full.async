@@ -53,5 +53,5 @@ channels.
 
 ## Parallel Processing
 
-`pmap-chan>>` lets you apply a function to channel's output in parallel, 
+`pmap>>` lets you apply a function to channel's output in parallel,
 returning a new channel with results.
