@@ -37,7 +37,7 @@ will wait 5 seconds and try invoking `make-some-http-request` again. If it still
 fails after 3 attempts or a different type of exception is thrown, it will get 
 returned via the result channel.
 
-## Sequences
+## Sequences & Collections
 
 Channels by themselves are quite similar to sequences however converting between
 them may sometimes be cumbersome. `full.async` provides a set of convenience 
@@ -55,5 +55,3 @@ channels.
 
 `pmap-chan>>` lets you apply a function to channel's output in parallel, 
 returning a new channel with results.
-
-

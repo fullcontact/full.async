@@ -1,26 +1,5 @@
 (ns full.async
-  (:refer-clojure :exclude [reduce into merge map])
-  (:require [clojure.core.async :as async]))
-
-(alias 'core 'clojure.core)
-
-; for convenience alias frequently used core.async functions and macros
-; so you can require just full.async
-
-(def #^{:macro true} go #'async/go)
-(def #^{:macro true} go-loop #'async/go-loop)
-(def <!! async/<!!)
-(def >!! async/>!!)
-(defmacro <! [port] `(async/<! ~port))
-(defmacro >! [port value] `(async/>! ~port ~value))
-(defmacro alts! [ports & opts] `(async/alts! ~ports ~@opts))
-(def chan async/chan)
-(def merge async/merge)
-(def into async/into)
-(def reduce async/reduce)
-(def map async/map)
-(def timeout async/timeout)
-(def close! async/close!)
+  (:require [clojure.core.async :refer [<! <!! >! alts! go go-loop chan] :as async]))
 
 (defn throw-if-throwable
   "Helper method that checks if x is Throwable and if yes, wraps it in a new
@@ -73,7 +52,7 @@
                   (instance? ~exception res#)
                   (> retries# 0))
            (do
-             (<! (timeout (* ~delay 1000)))
+             (<! (async/timeout (* ~delay 1000)))
              (recur (dec retries#)))
            res#)))))
 
@@ -82,14 +61,14 @@
   The input channel must be closed."
   [ch]
   `(let [ch# ~ch]
-     (<! (into [] ch#))))
+     (<! (async/into [] ch#))))
 
 (defmacro <<?
   "Takes multiple results from a channel and returns them as a vector.
   Throws if any result is an exception."
   [ch]
   `(->> (<<! ~ch)
-        (core/map throw-if-throwable)
+        (map throw-if-throwable)
         ; doall to check for throwables right away
         (doall)))
 
@@ -163,5 +142,5 @@
                 (>! results result))
               (recur)))))
         (when (zero? (swap! threads dec))
-          (async/close! results)))
+          (close! results)))
     results))

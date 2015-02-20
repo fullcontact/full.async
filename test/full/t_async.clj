@@ -1,7 +1,7 @@
 (ns full.t-async
-  (:refer-clojure :exclude [reduce into merge map])
   (:require [midje.sweet :refer :all]
-            [full.async :refer :all]))
+            [full.async :refer :all]
+            [clojure.core.async :refer [<!! >! >!! go chan close!]]))
 
 (facts
   (fact
