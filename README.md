@@ -9,7 +9,7 @@ Exception handling is an area for which core.async doesn't have extensive
 support out of the box. If something within a `go` block throws an exception, it 
 will be logged but the block will simply return `nil`, hiding any information 
 about the actual exception. You could wrap the body of each `go` block within an 
-exception handler but that's  not very convenient. Full.async provide a set of 
+exception handler but that's  not very convenient. `full.async` provides a set of 
 helper functions and macros for dealing with exceptions in a simple manner:
 
 * `go-try`: equivalent of `go` but catches any exceptions thrown and returns via
@@ -19,7 +19,7 @@ is an exception, it will get thrown
 
 ## Retry Logic
 
-Sometimes it may be necessary to retry certains things when they fail, 
+Sometimes it may be necessary to retry certain things when they fail, 
 especially in distributed systems. The `go-retry` macro lets you achieve that,
 for example:
 
@@ -40,7 +40,7 @@ returned via the result channel.
 ## Sequences
 
 Channels by themselves are quite similar to sequences however converting between
-them may sometimes be cumbersome. Full.async provides a set of convenience 
+them may sometimes be cumbersome. `full.async` provides a set of convenience 
 methods for this:
 
 * `<<!`, `<<?`: takes all items from the channel and returns them as a collection.
