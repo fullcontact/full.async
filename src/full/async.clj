@@ -12,7 +12,7 @@
 (def <!! async/<!!)
 (def >!! async/>!!)
 (defmacro <! [port] `(async/<! ~port))
-(defmacro >! [port val] `(async/>! ~port ~val))
+(defmacro >! [port value] `(async/>! ~port ~value))
 (defmacro alts! [ports & opts] `(async/alts! ~ports ~@opts))
 (def chan async/chan)
 (def merge async/merge)
@@ -30,12 +30,12 @@
   (if (instance? Throwable x)
     (throw (ex-info (.getMessage x)
                     (ex-data x)
-                    x)))
-    x)
+                    x))
+    x))
 
 (defmacro <?
-  "Same as core.async <! but throws an exception if channel returns an exception object. Also will not crash if
-  channel is nil."
+  "Same as core.async <! but throws an exception if channel returns a throwable
+  object. Also will not crash if channel is nil."
   [ch]
   `(throw-if-throwable (let [ch# ~ch] (when ch# (<! ch#)))))
 
@@ -44,19 +44,20 @@
   `(first (<? ~ch)))
 
 (defn <??
-  "Same as core.async <!! but throws an exception if channel returns an exception object. Also will not crash if
-  channel is nil."
+  "Same as core.async <!! but throws an exception if channel returns a throwable
+  object. Also will not crash if channel is nil."
   [ch]
   (throw-if-throwable (when ch (<!! ch))))
 
 (defmacro alts?
-  "Same as core.async alts! but throws an exception if channel returns an exception object."
+  "Same as core.async alts! but throws an exception if channel returns a
+  throwabler object."
   [ports]
   `(throw-if-throwable (alts! ~ports)))
 
 (defmacro go-try
-  "Asynchronously executes the body in go block. Returns a channel which will receive the
-  result of the body when completed or exception if one is thrown."
+  "Asynchronously executes the body in go block. Returns a channel which will
+  receive the result of the body when completed or exception if one is thrown."
   [& body]
   `(go (try ~@body (catch Throwable e# e#))))
 
@@ -76,7 +77,8 @@
            res#)))))
 
 (defmacro <<!
-  "Takes multiple results from channel and returns as a vector. Input channel must be closed."
+  "Takes multiple results from channel and returns as a vector.
+  Input channel must be closed."
   [ch]
   `(let [ch# ~ch]
      (<! (into [] ch#))))
@@ -105,7 +107,8 @@
         (cons next (<<?? ch))))))
 
 (defmacro <!*
-  "Takes one result from each channel and returns as collection. The results maintain the order of collections."
+  "Takes one result from each channel and returns as collection. The results
+  maintain the order of collections."
   [chs]
   `(let [chs# ~chs]
      (loop [chs# chs#
@@ -117,8 +120,9 @@
          results#))))
 
 (defmacro <?*
-  "Takes one result from each channel and returns as collection. The results maintain the order of collections.
-  Throws if any of channels return exception."
+  "Takes one result from each channel and returns as collection. The results
+  maintain the order of collections. Throws if any of the channels
+  return an exception."
   [chs]
   `(let [chs# ~chs]
      (loop [chs# chs#
@@ -138,9 +142,10 @@
   (<?? (go-try (<?* chs))))
 
 (defn pmap-chan>>
-  "Takes objects from ch, asynchrously applies function f> (function should return channel), takes
-  result from returned channel and if it's not nil, puts if the results channel. Returns the results
-  channel. Closes the returned channel when input channel has been completely consumed and all objects
+  "Takes objects from ch, asynchrously applies function f> (function should
+  return channel), takes result from returned channel and if it's not nil, puts
+  it in the results channel. Returns the results channel. Closes the returned
+  channel when input channel has been completely consumed and all objects
   have been processed."
   [f> parallelism ch]
   (let [results (chan)
@@ -156,6 +161,6 @@
               (when-let [result (<! (f> x))]
                 (>! results result))
               (recur)))))
-        (when (= 0 (swap! threads dec))
+        (when (zero? (swap! threads dec))
           (async/close! results)))
     results))
