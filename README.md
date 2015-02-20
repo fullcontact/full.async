@@ -46,8 +46,7 @@ methods for this:
 * `<<!`, `<<?`: takes all items from the channel and returns as collection. Must
 be used within a `go` block. 
 * `<<!!`, `<<??`: takes all items from the channel and returns as a lazy 
-sequence. Will block the execution thread when no items are available (yet) 
-and channel is not closed.
+sequence. Returns immediately.
 * `<!*`, `<?*`, `<!!*`, `<??*` takes one item from each input channel and 
 returns in a single collection. Results have the same ordering as input 
 channels.
