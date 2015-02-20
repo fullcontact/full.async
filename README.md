@@ -5,23 +5,23 @@ with a number of convenience methods.
 
 ## Exception Handling
 
-Exception handling is an area for which core.async doesn't have an extensive 
+Exception handling is an area for which core.async doesn't have extensive 
 support out of the box. If something within a `go` block throws an exception, it 
-will be logged but the block will simply return `nil` hiding any information 
-about the actual exception. You could wrap body of each `go` block within an 
+will be logged but the block will simply return `nil`, hiding any information 
+about the actual exception. You could wrap the body of each `go` block within an 
 exception handler but that's  not very convenient. Full.async provide a set of 
 helper functions and macros for dealing with exceptions in a simple manner:
 
 * `go-try`: equivalent of `go` but catches any exceptions thrown and returns via
-resulting channel
-* `<?`, `alts?`, `<??`: equivalents of `<!`, `alts?` and `<??` but if the value 
+the resulting channel
+* `<?`, `alts?`, `<??`: equivalents of `<!`, `alts!` and `<!!` but if the value 
 is an exception, it will get thrown
 
 ## Retry Logic
 
 Sometimes it may be necessary to retry certains things when they fail, 
-especially in distributed systems. `go-retry` macro lets you achieve that, for
-example:
+especially in distributed systems. The `go-retry` macro lets you achieve that,
+for example:
 
 ```clojure
 (go-retry {:error-fn (fn [ex] (= 409 (.getStatus ex)))
@@ -32,9 +32,9 @@ example:
 ```
 
 The above method will invoke `make-some-http-request` in a `go` block. If it 
-throws an exception of a type `HTTPException` with a status code 409, `go-retry`
+throws an exception of type `HTTPException` with a status code 409, `go-retry`
 will wait 5 seconds and try invoking `make-some-http-request` again. If it still 
-fails after 3 attempts or other kind of an exception is thrown, it will get 
+fails after 3 attempts or a different type of exception is thrown, it will get 
 returned via the result channel.
 
 ## Sequences
@@ -43,12 +43,12 @@ Channels by themselves are quite similar to sequences however converting between
 them may sometimes be cumbersome. Full.async provides a set of convenience 
 methods for this:
 
-* `<<!`, `<<?`: takes all items from the channel and returns as collection. Must
-be used within a `go` block. 
+* `<<!`, `<<?`: takes all items from the channel and returns them as a collection.
+Must be used within a `go` block. 
 * `<<!!`, `<<??`: takes all items from the channel and returns as a lazy 
 sequence. Returns immediately.
 * `<!*`, `<?*`, `<!!*`, `<??*` takes one item from each input channel and 
-returns in a single collection. Results have the same ordering as input 
+returns them in a single collection. Results have the same ordering as input 
 channels.
 
 ## Parallel Processing
