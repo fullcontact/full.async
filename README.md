@@ -3,6 +3,8 @@
 A Clojure library that extends [core.async](https://github.com/clojure/core.async) 
 with a number of convenience methods.
 
+[![Clojars Project](http://clojars.org/fullcontact/full.async/latest-version.svg)](http://clojars.org/fullcontact/full.async)
+
 ## Exception Handling
 
 Exception handling is an area for which core.async doesn't have extensive 
