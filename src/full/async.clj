@@ -121,7 +121,7 @@
   [chs]
   (<?? (go-try (<?* chs))))
 
-(defn pmap-chan>>
+(defn pmap>>
   "Takes objects from ch, asynchrously applies function f> (function should
   return channel), takes the result from the returned channel and if it's not
   nil, puts it in the results channel. Returns the results channel. Closes the
