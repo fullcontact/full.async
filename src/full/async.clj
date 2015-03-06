@@ -142,5 +142,5 @@
                 (>! results result))
               (recur)))))
         (when (zero? (swap! threads dec))
-          (close! results)))
+          (async/close! results)))
     results))
