@@ -18,10 +18,6 @@
   [ch]
   `(throw-if-throwable (let [ch# ~ch] (when ch# (<! ch#)))))
 
-(defmacro <?first
-  [ch]
-  `(first (<? ~ch)))
-
 (defn <??
   "Same as core.async <!! but throws an exception if the channel returns a
   throwable object. Also will not crash if channel is nil."
