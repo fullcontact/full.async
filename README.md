@@ -57,3 +57,8 @@ channels.
 
 `pmap>>` lets you apply a function to channel's output in parallel,
 returning a new channel with results.
+
+
+## License
+
+Copyright (C) 2015 FullContact. Distributed under the Eclipse Public License, the same as Clojure.
