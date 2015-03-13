@@ -1,4 +1,4 @@
-(defproject fullcontact/camelsnake "0.1.0-SNAPSHOT"
+(defproject fullcontact/camelsnake "0.1.0"
   :description "String and keyword transformation between cases."
   :url "https://github.com/fullcontact/camelsnake"
   :license {:name "Eclipse Public License - v 1.0"
