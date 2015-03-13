@@ -1,4 +1,4 @@
-(defproject fullcontact/full.core "0.1.0-SNAPSHOT"
+(defproject fullcontact/full.core "0.1.0"
   :description "FullContact's core Clojure library - logging, configuration and common helpers."
   :url "https://github.com/fullcontact/full.core"
   :license {:name "Eclipse Public License - v 1.0"
