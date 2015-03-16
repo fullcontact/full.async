@@ -1,4 +1,4 @@
-(defproject fullcontact/full.time "0.1.0-SNAPSHOT"
+(defproject fullcontact/full.time "0.1.0"
   :description "Simple timestamp formatting and parsing for Clojure."
   :url "https://github.com/fullcontact/full.time"
   :license {:name "Eclipse Public License - v 1.0"
