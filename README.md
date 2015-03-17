@@ -40,3 +40,6 @@ We can use config macros as follows:
 (defoptconfig space-cakes :space-cakes) ; @space-cakes will be nil
 (defconfig oh-no :this :will :raise)  ; will raise RuntimeException
 ```
+
+Path to config file can be set via `-c path/to/file.yaml` or as `FULL_CONFIG`
+env variable.
