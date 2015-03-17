@@ -7,6 +7,7 @@
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/tools.cli "0.3.1"]
                  [org.clojure/tools.logging "0.3.0"]
+                 [me.moocar/logback-gelf "0.10p1"]
                  [ch.qos.logback/logback-classic "1.1.2"]
                  [clj-yaml "0.4.0"]]
   :lein-release {:deploy-via :shell
