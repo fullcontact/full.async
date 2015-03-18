@@ -44,8 +44,8 @@
      (go-loop
        [retries# ~retries]
        (let [res# (try ~@body (catch Throwable e# e#))]
-         (if (and (or (not error-fn#) (error-fn# res#))
-                  (instance? ~exception res#)
+         (if (and (instance? ~exception res#)
+                  (or (not error-fn#) (error-fn# res#))
                   (> retries# 0))
            (do
              (<! (async/timeout (* ~delay 1000)))
