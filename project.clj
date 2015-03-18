@@ -1,4 +1,4 @@
-(defproject fullcontact/full.async "0.2.2"
+(defproject fullcontact/full.async "0.2.3-SNAPSHOT"
   :description "Extensions and helpers for core.async."
   :license {:name "Eclipse Public License - v 1.0"
             :url "http://www.eclipse.org/legal/epl-v10.html"
