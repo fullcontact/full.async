@@ -8,7 +8,7 @@
   [x]
   (if (instance? Throwable x)
     (throw (ex-info (.getMessage x)
-                    (ex-data x)
+                    (or (ex-data x) {})
                     x))
     x))
 
