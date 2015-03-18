@@ -62,4 +62,13 @@
 
   (fact
     (<??* [(go "1") (go (Exception. ))])
-    => (throws Exception)))
+    => (throws Exception))
+
+  (fact
+    (->> (let [ch (chan)]
+           (go (doto ch (>!! 1) (>!! 2) close!))
+           ch)
+         (pmap>> #(go (inc %)) 2)
+         (<<??)
+         (set))
+    => #{2 3}))

@@ -124,19 +124,20 @@
   returned channel when the input channel has been completely consumed and all
   objects have been processed."
   [f> parallelism ch]
-  (let [results (chan)
+  (let [results (async/chan)
         threads (atom parallelism)]
     (dotimes [_ parallelism]
-      (go-loop []
-        (when-let [x (<! ch)]
-          (if (instance? Throwable x)
-            (do
-              (>! results x)
-              (async/close! results))
-            (do
-              (when-let [result (<! (f> x))]
-                (>! results result))
-              (recur)))))
+      (go
+        (loop []
+          (when-let [obj (<! ch)]
+            (if (instance? Throwable obj)
+              (do
+                (>! results obj)
+                (async/close! results))
+              (do
+                (when-let [result (<! (f> obj))]
+                  (>! results result))
+                (recur)))))
         (when (zero? (swap! threads dec))
-          (async/close! results)))
+          (async/close! results))))
     results))
