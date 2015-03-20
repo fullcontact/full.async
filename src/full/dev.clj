@@ -1,23 +1,14 @@
 (ns full.dev
+  "Debug helpers."
   (:require [full.core.log :as log]
             [clojure.string :as str]
             [clojure.stacktrace :as st]
             [ns-tracker.core :as tracker]))
 
 
-;;; debug helpers ;;;
-
-
 (defn <println [& args]
   (apply prn args)
   (last args))
-
-(defn do-log
-  "Logs all arguments (except the last) and evaluates the last form and logs it's value"
-  [& args]
-  (do
-    (if (seq (butlast args)) (log/info (str/join ", " (butlast args))))
-    (let [ret (last args)] (log/info "Return:" ret "\n") ret)))
 
 (defmacro catch-log
   [& body]
@@ -32,8 +23,7 @@
   (partial format "%15s>"))
 
 
-;;; DYNAMIC CODE RELOADING
-
+;;; Dynamic code reloading
 
 (defn- check-namespace-changes [track]
   (doseq [ns-sym (track)]
