@@ -51,9 +51,22 @@
 (defmacro level-enabled? [level]
   `(log/enabled? ~level))
 
+(defn do-info
+  "Logs all arguments except the last one, evaluates last one, logs it with
+   info loglevel and returns it's value."
+  [& args]
+    (info (clojure.string/join ", " args))
+    (last args))
 
-;;; CONFIGURATION
+(defn do-debug
+  "Logs all arguments except the last one, evaluates last one, logs it with
+   debug loglevel and returns it's value."
+  [& args]
+    (debug (clojure.string/join ", " args))
+    (last args))
 
+
+;;; Configuration
 
 (defn check-config-file [config-file]
   (let [f (as-file config-file)]
