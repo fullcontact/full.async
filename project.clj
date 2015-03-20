@@ -1,4 +1,4 @@
-(defproject fullcontact/full.dev "0.1.1"
+(defproject fullcontact/full.dev "0.1.2-SNAPSHOT"
   :description "Clojure's development and debugging helpers"
   :url "https://github.com/fullcontact/full.dev"
   :license {:name "Eclipse Public License - v 1.0"
