@@ -31,10 +31,13 @@
       (log/info "Reloading namespace:" ns-sym)
       (require ns-sym :reload)
       (catch Throwable e
-        (log/error (log/error e "Error reloading namespace:" ns-sym))))
-    (Thread/sleep 500)))
+        (log/error (log/error "Error reloading namespace" ns-sym e)))))
+  (Thread/sleep 500))
 
-(defn start-nstracker []
+(defn start-nstracker
+  "Automatically tracks source code changes in src and checkouts folder
+  and reloads the changed namespaces."
+  []
   (let [track (tracker/ns-tracker ["src" "checkouts"])]
     (doto
       (Thread.
