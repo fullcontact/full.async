@@ -7,7 +7,7 @@
   to maintain a full stack trace when jumping between multiple contexts."
   [x]
   (if (instance? Throwable x)
-    (throw (ex-info (.getMessage x)
+    (throw (ex-info (or (.getMessage x) (str x))
                     (or (ex-data x) {})
                     x))
     x))
