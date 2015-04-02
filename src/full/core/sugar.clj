@@ -111,12 +111,12 @@
   "Returns the sequence s with the element at 0-based index idx removed."
   [s idx]
   (let [vec-s (vec s)]
-    (into (vec (take idx vec-s)) (nthrest vec-s (+ idx 1)))))
+    (into (vec (take idx vec-s)) (nthrest vec-s (inc idx)))))
 
 (defn replace-at
   "Returns the sequence s with the item at 0-based index idx."
   [s idx i]
-  (apply conj (into (empty s) (take idx s)) (cons i ( nthrest s (+ idx 1)))))
+  (apply conj (into (empty s) (take idx s)) (cons i ( nthrest s (inc idx)))))
 
 (defn ?conj
   "Same as conj, but skip the conj if v is nil"
@@ -125,6 +125,19 @@
     (if (empty? filtered)
       coll
       (apply (partial conj coll) filtered))))
+
+(defn update-last [s m]
+  "Updates last item in sequence s by applying mapping method m to it."
+  (if (seq s)
+    (assoc s (dec (count s)) (m (last s)))
+    s))
+
+(defn update-first [s m]
+  "Updates first item in sequence s by applying mapping method m to it."
+  (if (seq s)
+    (assoc s 0 (m (first s)))
+    s))
+
 
 
 ;;; SEQ HELPERS

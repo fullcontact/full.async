@@ -66,3 +66,13 @@
 (facts "about ?hash-map"
   (?hash-map :foo nil :bar nil :baz "xx") => {:baz "xx"}
   (?hash-map :foo nil ) => {})
+
+(facts "about update-last"
+  (update-last [] inc) => []
+  (update-last [1] inc) => [2]
+  (update-last [1 2 3] inc) => [1 2 4])
+
+(facts "about update-first"
+  (update-first [] inc) => []
+  (update-first [1] inc) => [2]
+  (update-first [1 2 3] inc) => [2 2 3])
