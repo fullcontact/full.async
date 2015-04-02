@@ -4,14 +4,14 @@
            (java.net URLEncoder)
            (java.util.concurrent LinkedBlockingQueue))
   (:require [clojure.walk :refer [postwalk]]
-            [clojure.string :as str]))
+            [clojure.string :as string]))
 
 
-;;; MAP HELPERS
-
+;;; Map helpers
 
 (defn ?assoc
-  "Same as assoc, but skip the assoc if v is nil http://stackoverflow.com/a/16357241"
+  "Same as assoc, but skip the assoc if v is nil
+   http://stackoverflow.com/a/16357241"
   [m & kvs]
   (->> (partition 2 kvs)
        (filter (comp not nil? second))
@@ -19,7 +19,8 @@
        (into m)))
 
 (defn assoc-first
-  "Replaces value of key `k` in map `m` with the first value  sequence  first item from map given key to resultant map."
+  "Replaces value of key `k` in map `m` with the first value  sequence
+   first item from map given key to resultant map."
   [m k]
   (if-let [v (get m k)]
     (assoc m k (first v))
@@ -31,16 +32,17 @@
   (assoc m k (f (get m k))))
 
 (defn ?transf
-  "Same as transform, but will remove the `k` from `m` if the transformed value is nil or false."
+  "Same as transform, but will remove the `k` from `m`
+  if the transformed value is falsy."
   [m f k]
   (?assoc m k (f (get m k))))
 
 (defn remove-empty-val
   "Filter empty? values from map."
   [m]
-  (into {} (filter (fn [[key val]] (and (not (nil? val))
-                                   (or (and (not (coll? val)) (not (string? val)))
-                                       (seq val)))) m)))
+  (into {} (filter (fn [[k v]] (and (some? v)
+                                    (or (and (not (coll? v)) (not (string? v)))
+                                        (seq v)))) m)))
 
 (defn remove-nil-val
   "Filter nil? values from map."
@@ -98,8 +100,7 @@
   (apply ?assoc {} keyvals))
 
 
-;;; LIST HELPERS
-
+;;; List helpers
 
 (defn insert-at
   "Returns the sequence s with the item i inserted at 0-based index idx."
@@ -126,22 +127,8 @@
       coll
       (apply (partial conj coll) filtered))))
 
-(defn update-last [s m]
-  "Updates last item in sequence s by applying mapping method m to it."
-  (if (seq s)
-    (assoc s (dec (count s)) (m (last s)))
-    s))
 
-(defn update-first [s m]
-  "Updates first item in sequence s by applying mapping method m to it."
-  (if (seq s)
-    (assoc s 0 (m (first s)))
-    s))
-
-
-
-;;; SEQ HELPERS
-
+;;; Seq helpers
 
 (defn pipe
   "Returns a vector containing a sequence that will read from the
@@ -176,9 +163,20 @@
   [collection item]
   (or (first (some-when (fn [{v 1}] (= v item)) (map-indexed vector collection))) -1))
 
+(defn update-last [s m]
+  "Updates last item in sequence s by applying mapping method m to it."
+  (if (seq s)
+    (assoc s (dec (count s)) (m (last s)))
+    s))
 
-;;; STRING HELPERS
+(defn update-first [s m]
+  "Updates first item in sequence s by applying mapping method m to it."
+  (if (seq s)
+    (assoc s 0 (m (first s)))
+    s))
 
+
+;;; String helpers
 
 (defn number-or-string [s]
   (try
@@ -213,12 +211,14 @@
   (.replaceAll s "'" "\""))
 
 (defn query-string [m]
-  (clojure.string/join "&" (for [[k v] m] (str (name k) "="  (URLEncoder/encode (str v))))))
+  (clojure.string/join "&" (for [[k v] m] (str (name k) "=" (URLEncoder/encode (str v))))))
 
-(defn strip [coll chars]
-  (apply str (remove #((set chars) %) coll)))
+(defn strip
+  "Takes a string s and a string cs. Removes all cs characters from s."
+  [s cs]
+  (apply str (remove #((set cs) %) s)))
 
-(defn uuid [] (str/replace (str (java.util.UUID/randomUUID)) "-" ""))
+(defn uuid [] (string/replace (str (java.util.UUID/randomUUID)) "-" ""))
 
 (defn byte-buffer->byte-vector [bb]
   (loop [byte-vector []]
@@ -233,8 +233,7 @@
        (clojure.string/join)))
 
 
-;;; METADATA HELPERS
-
+;;; Metadata helpers
 
 (defn def-name
   "Returns human readable name of defined symbol (such as def or defn)."
@@ -242,14 +241,16 @@
   (-> `(name ~sym)
       (second)
       (str)
-      (str/split #"\$")
+      (string/split #"\$")
       (last)
-      (str/split #"@")
+      (string/split #"@")
       (first)
-      (str/replace #"__" "-")
-      (str/replace #"GT_" ">")))
+      (string/replace #"__" "-")
+      (string/replace #"GT_" ">")))
 
-(defn mname [obj]
+(defn mname
+  "Meta name for the object."
+  [obj]
   (-> obj meta :name))
 
 (defmacro with-mname [name & body]
@@ -259,63 +260,88 @@
   `(with-mname ~name (fn ~args ~@body)))
 
 
-;;; CONDITIONAL THREADING
-
+;;; Conditional threading
 
 (defn- cndexpand [cnd value]
   (postwalk (fn [c] (if (= (symbol "%") c) value c)) cnd))
 
-;; Using when + ->> inside ->> threads
-;; (->> (range 10) (map inc) (when->> true (filter even?))) => (2 4 6 8 10)
-
-(defmacro when->> [cnd & threads]
+(defmacro when->>
+  "Using when + ->> inside ->> threads
+   Takes a single condition and one or more forms that will be executed like a
+   regular ->>, if condition is true. Will pass the initial value if condition
+   is false.
+   Contition can take the initial value as argument, it needs to be
+   referenced as '%' (eg, (some-condition %)
+   (->> (range 10) (map inc) (when->> true (filter even?)))
+   => (2 4 6 8 10)"
+  [cnd & threads]
   `(if ~(cndexpand cnd (last threads))
     (->> ~(last threads)
          ~@(butlast threads))
     ~(last threads)))
 
-;; Using when + -> inside -> threads
-;; (-> "foobar" (upper-case) (when-> true (str "baz"))) => "FOOBARbaz"
-(defmacro when-> [thread cnd & threads]
+(defmacro when->
+  "Using when + -> inside -> threads
+   Takes a single condition and multiple forms that will be executed like a
+   normal -> if the condition is true.
+   Contition can take the initial value as argument, it needs to be
+   referenced as '%' (eg, (some-condition %)
+   (-> \"foobar\" (upper-case) (when-> true (str \"baz\")))
+   => FOOBARbaz"
+   [thread cnd & threads]
   `(if ~(cndexpand cnd thread)
     (-> ~thread
         ~@threads)
     ~thread))
 
-;; Using when + -> inside ->> threads
-;; (->> (range 3) (map inc) (when->>-> true (into ["header"]))) => ("header" 1 2 3)
-(defmacro when->>-> [cnd & threads]
+(defmacro when->>->
+  "Using when + -> inside ->> threads.
+   Takes a single condition cnd and multiple forms that will be exectued as
+   a regular ->>, if the condition is true (otherwise the initial value will
+   be passed to next form).
+   Contition can take the initial value as argument, it needs to be
+   referenced as '%' (eg, (some-condition %)
+  (->> (range 3) (map inc) (when->>-> (seq %) (into [\"header\"])))
+  => (\"header\" 1 2 3)"
+  [cnd & threads]
   `(if ~(cndexpand cnd (last threads))
     (-> ~(last threads)
         ~@(butlast threads))
     ~(last threads)))
 
-;; Using if + ->> inside ->> threads
-;; "else" block can be provided after an :else keyword.
-;; All parts work like you'd expect inside ->> and when->>.
-;; (->> (range 10) (if->> false (filter odd?) (map inc) :else (filter even?) (map dec))) => (-1 1 3 5 7)
-(defmacro if->> [cnd & threads]
+(defmacro if->>
+  "Using if + ->> inside ->> threads
+  Takes a single condition and one or more forms that will be executed if the
+  condition is true.
+  An else block can be passed in by separating forms with :else keyword.
+   Contition can take the initial value as argument, it needs to be
+   referenced as '%' (eg, (some-condition %)
+  (->> (range 10) (if->> false
+                         (filter odd?) (map inc)
+                         :else (filter even?) (map dec)))
+  => (-1 1 3 5 7)"
+  [cnd & threads]
   `(if ~(cndexpand cnd (last threads))
     (->> ~(last threads)
          ~@(take-while #(not= :else %) (butlast threads)))
     (->> ~(last threads)
          ~@(rest (drop-while #(not= :else %) (butlast threads))))))
 
-
-;; Allowing to sneak in ->s inside ->>s.
-;; (->> (range 3) (map inc) (as-> (nth 1) inc) (str "x")) => (str "x3")
-
-(defmacro nest-> [& threads]
+(defmacro nest->
+  "Allows to sneak in ->s inside ->>s.
+  (->> (range 3) (map inc) (nest-> (nth 1) inc) (str \"x\"))
+  => x3"
+  [& threads]
   `(-> ~(last threads)
        ~@(butlast threads)))
 
 
-;;; HELPERS FOR MEASURING EXECUTION TIME
-
+;;; Helpers for measuring execution time
 
 (defn time-bookmark
-  "Returns time bookmark (technically system time in nanoseconds) for use in concert with ellapsed-time to
-  messure execution time of some code block."
+  "Returns time bookmark (technically system time in nanoseconds).
+  For use in concert with ellapsed-time to messure execution time
+  of some code block."
   []
   (. System (nanoTime)))
 
