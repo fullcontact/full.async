@@ -232,6 +232,14 @@
        (Hex/encodeHex)
        (clojure.string/join)))
 
+(defn str-greater? [this that]
+  "Returns true if this is greater than that. Case insensitive."
+  (pos? (compare (string/lower-case this) (string/lower-case that))))
+
+(defn str-smaller? [this that]
+  "Returns true if this is smaller than that. Case insensitive."
+  (neg? (compare (string/lower-case this) (string/lower-case that))))
+
 
 ;;; Metadata helpers
 
