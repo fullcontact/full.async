@@ -141,3 +141,21 @@
         (when (zero? (swap! threads dec))
           (async/close! results))))
     results))
+
+
+(defn reduce>
+  "Performs a reduce on objects from ch with the function f> (which should return
+  a channel). Returns a channel with the resulting value."
+  [f> acc ch]
+  (let [result (chan)]
+    (go-loop [acc acc]
+      (if-let [x (<! ch)]
+        (if (instance? Throwable x)
+          (do
+            (>! result x)
+            (async/close! result))
+          (->> (f> acc x) <! recur))
+        (do
+          (>! result acc)
+          (async/close! result))))
+    result))
