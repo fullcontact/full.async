@@ -88,7 +88,7 @@
   [chs]
   `(let [chs# ~chs]
      (loop [chs# chs#
-            results# (empty chs#)]
+            results# (clojure.lang.PersistentQueue/EMPTY)]
        (if-let [head# (first chs#)]
          (->> (<! head#)
               (conj results#)
@@ -102,7 +102,7 @@
   [chs]
   `(let [chs# ~chs]
      (loop [chs# chs#
-            results# (empty chs#)]
+            results# (clojure.lang.PersistentQueue/EMPTY)]
        (if-let [head# (first chs#)]
          (->> (<? head#)
               (conj results#)
@@ -141,7 +141,6 @@
         (when (zero? (swap! threads dec))
           (async/close! results))))
     results))
-
 
 (defn reduce>
   "Performs a reduce on objects from ch with the function f> (which should return

@@ -61,6 +61,10 @@
     => ["1" "2"])
 
   (fact
+    (<??* (list (go "1") (go "2")))
+    => ["1" "2"])
+
+  (fact
     (<??* [(go "1") (go (Exception. ))])
     => (throws Exception))
 
