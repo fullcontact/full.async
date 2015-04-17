@@ -8,7 +8,7 @@
                  [cheshire "5.3.1"]
                  [fullcontact/full.core "0.1.0"]
                  [fullcontact/full.time "0.1.0"]
-                 [fullcontact/camelsnake "0.1.0"]]
+                 [fullcontact/camelsnake "0.1.2"]]
   :lein-release {:deploy-via :shell
                  :shell ["lein" "deploy" "clojars"]}
   :plugins [[lein-midje "3.1.3"]
