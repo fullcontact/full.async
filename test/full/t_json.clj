@@ -19,8 +19,17 @@
 
 (facts
   "about preserving keys in json payloads"
-  (kebabize-keys {"foo" {"bar" 5} "NaNoWriMo" {"fooBar" 3} "XHTML" 3 "fooBarBaz" 5} ["NaNoWriMo" "XHTML"]) =>
-  {:foo {:bar 5} :na-no-wri-mo {"fooBar" 3} :xhtml 3 :foo-bar-baz 5})
+  (fact
+    (convert-keys {"foo" {"bar" 5}
+                   "NaNoWriMo" {"fooBar" 3}
+                   "XHTML" 3
+                   "fooBarBaz" 5}
+                  ->kebab-case-keyword
+                  ["NaNoWriMo" "XHTML"])
+    => {:foo {:bar 5}
+        :na-no-wri-mo {"fooBar" 3}
+        :xhtml 3
+        :foo-bar-baz 5}))
 
 
 (facts
