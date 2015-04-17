@@ -1,4 +1,4 @@
-(defproject fullcontact/full.json "0.1.1-SNAPSHOT"
+(defproject fullcontact/full.json "0.1.1"
   :description "Simple Clojure's wrapper for Google's libphonenumber."
   :url "https://github.com/fullcontact/full.json"
   :license {:name "Eclipse Public License - v 1.0"
