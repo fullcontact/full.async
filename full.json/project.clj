@@ -1,4 +1,4 @@
-(defproject fullcontact/full.json "0.3.0"
+(defproject fullcontact/full.json leiningen.release/bump-version
   :description "Read and write JSON (Cheshire extension)."
 
   :dependencies [[cheshire "5.3.1"]
