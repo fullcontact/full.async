@@ -1,4 +1,4 @@
-(defproject fullcontact/full.cache "0.3.1-SNAPSHOT"
+(defproject fullcontact/full.cache "0.4.0-SNAPSHOT"
   :description "In-memory + memcache caching for Clojure with async loading."
 
   :dependencies [[net.jodah/expiringmap "0.4.1"]

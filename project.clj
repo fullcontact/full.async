@@ -1,4 +1,4 @@
-(defproject fullcontact/full.monty "0.3.1-SNAPSHOT"
+(defproject fullcontact/full.monty "0.4.0-SNAPSHOT"
   :description "Minimalistic stack for building robust Clojure HTTP services."
 
   :url "https://github.com/fullcontact/full.monty"

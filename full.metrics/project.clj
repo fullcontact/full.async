@@ -1,4 +1,4 @@
-(defproject fullcontact/full.metrics "0.3.1-SNAPSHOT"
+(defproject fullcontact/full.metrics "0.4.0-SNAPSHOT"
   :description "Clojure application metrics sugar for Riemann backend."
 
   :dependencies [[riemann-clojure-client "0.2.11"]

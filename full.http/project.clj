@@ -1,4 +1,4 @@
-(defproject fullcontact/full.http "0.3.1-SNAPSHOT"
+(defproject fullcontact/full.http "0.4.0-SNAPSHOT"
   :description "Async HTTP client and server on top of http-kit and core.async."
 
   :dependencies [[http-kit "2.1.18"]
