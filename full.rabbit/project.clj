@@ -1,4 +1,4 @@
-(defproject fullcontact/full.rabbit "0.4.1"
+(defproject fullcontact/full.rabbit "0.4.2-SNAPSHOT"
   :description "RabbitMQ sugar on top of langohr."
 
   :dependencies [[com.novemberain/langohr "3.0.0-rc2"]

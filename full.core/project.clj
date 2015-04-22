@@ -1,4 +1,4 @@
-(defproject fullcontact/full.core "0.4.1"
+(defproject fullcontact/full.core "0.4.2-SNAPSHOT"
   :description "FullContact's core Clojure library - logging, configuration and common helpers."
     
   :dependencies [[org.clojure/tools.cli "0.3.1"]

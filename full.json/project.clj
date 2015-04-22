@@ -1,4 +1,4 @@
-(defproject fullcontact/full.json "0.4.1"
+(defproject fullcontact/full.json "0.4.2-SNAPSHOT"
   :description "Read and write JSON (Cheshire extension)."
 
   :dependencies [[cheshire "5.3.1"]
