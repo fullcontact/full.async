@@ -1,4 +1,4 @@
-(defproject fullcontact/full.async "0.4.0-SNAPSHOT"
+(defproject fullcontact/full.async "0.4.0"
   :description "Extensions and helpers for core.async."
 
   :dependencies [[org.clojure/core.async "0.1.346.0-17112a-alpha"]]
