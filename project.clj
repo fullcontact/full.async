@@ -10,7 +10,8 @@
                  [fullcontact/full.json _]
                  [fullcontact/full.async _]
                  [fullcontact/full.dev _]
-                 [fullcontact/full.cache _]]
+                 [fullcontact/full.cache _]
+                 [fullcontact/full.metrics _]]
 
   :plugins [[lein-modules "0.3.11"]]
             
@@ -33,7 +34,8 @@
                  fullcontact/full.json :version
                  fullcontact/full.async :version
                  fullcontact/full.dev :version
-                 fullcontact/full.cache :version}}
+                 fullcontact/full.cache :version
+                 fullcontact/full.metrics :version}}
 
   :profiles {:provided {:dependencies [[org.clojure/clojure _]]}
              :dev {:dependencies [[midje _]]}}
