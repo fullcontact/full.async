@@ -1,6 +1,5 @@
 (ns full.cache
-  (:require [clojurewerkz.spyglass.client :as spyglass]
-            [taoensso.nippy :as nippy]
+  (:require [taoensso.nippy :as nippy]
             [full.core.log :as log]
             [full.core.config :refer [defoptconfig]]
             [full.async :refer [go-try]]
@@ -8,7 +7,8 @@
   (:import (java.util.logging Logger Level)
            (net.jodah.expiringmap ExpiringMap ExpiringMap$ExpirationPolicy)
            (java.util.concurrent TimeUnit)
-           (clojure.core.async.impl.protocols ReadPort))
+           (clojure.core.async.impl.protocols ReadPort)
+           (net.spy.memcached MemcachedClient BinaryConnectionFactory AddrUtil))
   (:refer-clojure :exclude [set, get]))
 
 
@@ -66,21 +66,23 @@
   (System/setProperty "net.spy.log.LoggerImpl" "net.spy.memcached.compat.log.SunLogger")
   (.setLevel (Logger/getLogger "net.spy.memcached") Level/SEVERE))
 
-(def ^:private con
+(def ^:private client
   (delay
     (when @memcache-address
       (blackhole-memcache-logging)
-      (let [c (spyglass/bin-connection @memcache-address)]
-        (.addShutdownHook (Runtime/getRuntime) (Thread. #(spyglass/shutdown c)))
-               c))))
+      (let [addresses (AddrUtil/getAddresses @memcache-address)
+            factory (BinaryConnectionFactory.)
+            c (MemcachedClient. factory addresses)]
+        (.addShutdownHook (Runtime/getRuntime) (Thread. #(.shutdown c)))
+        c))))
 
 (defn connected? []
-  @con)
+  @client)
 
 (defn rget
   [k & {:keys [throw?]}]
   (let [v (try
-            (spyglass/get @con k)
+            (.get @client k)
             (catch Exception e
               (if throw?
                 (throw e)
@@ -96,7 +98,7 @@
   ([k v] (rset k v 0))
   ([k v timeout & {:keys [throw?]}]
    (try
-     (spyglass/set @con k timeout (nippy/freeze v))
+     (.set @client k timeout (nippy/freeze v))
      (log/debug "Added to cache:" k)
      (catch Exception e
        (if throw?
@@ -108,7 +110,7 @@
   ([k v] (radd k v 0))
   ([k v timeout & {:keys [throw?]}]
    (try
-     (let [res @(spyglass/add @con k timeout (nippy/freeze v))]
+     (let [res (.get (.add @client k timeout (nippy/freeze v)))]
        (if res
          (do
            (log/debug "Added to cache:" k)
@@ -128,7 +130,7 @@
 (defn rdelete
   [k & {:keys [throw?]}]
   (try
-    (spyglass/delete @con k)
+    (.delete @client k)
     (log/debug "Deleted from cache:" k)
     (catch Exception e
       (if throw?
