@@ -9,7 +9,8 @@
                  [fullcontact/camelsnake _]
                  [fullcontact/full.json _]
                  [fullcontact/full.async _]
-                 [fullcontact/full.dev _]]
+                 [fullcontact/full.dev _]
+                 [fullcontact/full.cache _]]
 
   :plugins [[lein-modules "0.3.11"]]
             
@@ -31,7 +32,8 @@
                  fullcontact/camelsnake :version
                  fullcontact/full.json :version
                  fullcontact/full.async :version
-                 fullcontact/full.dev :version}}
+                 fullcontact/full.dev :version
+                 fullcontact/full.cache :version}}
 
   :profiles {:provided {:dependencies [[org.clojure/clojure _]]}
              :dev {:dependencies [[midje _]]}}
