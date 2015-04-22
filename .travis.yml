@@ -1,2 +1,3 @@
 language: clojure
+install: lein modules install
 script: "lein do modules midje, midje"
