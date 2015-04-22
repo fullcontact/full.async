@@ -4,6 +4,7 @@
   :url "https://github.com/fullcontact/full.monty"
 
   :dependencies [[org.clojure/clojure _]
+                 ; base modules
                  [fullcontact/full.core _]
                  [fullcontact/full.time _]
                  [fullcontact/camelsnake _]
@@ -37,7 +38,8 @@
                  fullcontact/full.dev :version
                  fullcontact/full.cache :version
                  fullcontact/full.metrics :version
-                 fullcontact/full.http :version}}
+                 fullcontact/full.http :version
+                 fullcontact/full.rabbit :version}}
 
   :profiles {:provided {:dependencies [[org.clojure/clojure _]]}
              :dev {:dependencies [[midje _]]}}
