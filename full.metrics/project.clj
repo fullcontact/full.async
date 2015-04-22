@@ -1,9 +1,20 @@
 (defproject fullcontact/full.metrics "0.4.2-SNAPSHOT"
   :description "Clojure application metrics sugar for Riemann backend."
 
-  :dependencies [[riemann-clojure-client "0.2.11"]
-                 [com.climate/clj-newrelic "0.2.1"]                 
-                 [fullcontact/full.core _]
-                 [fullcontact/full.async _]]
+  :url "https://github.com/fullcontact/full.monty"
 
-  :plugins [[lein-modules "0.3.11"]])
+  :license {:name "Eclipse Public License - v 1.0"
+            :url "http://www.eclipse.org/legal/epl-v10.html"
+            :distribution :repo}  
+
+  :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]                   
+
+  :dependencies [[org.clojure/clojure "1.6.0"]
+                 [riemann-clojure-client "0.2.11"]
+                 [com.climate/clj-newrelic "0.2.1"]                 
+                 [fullcontact/full.async "0.4.2-SNAPSHOT"]
+                 [fullcontact/full.core "0.4.2-SNAPSHOT"]]
+
+  :plugins [[lein-midje "3.1.3"]]  
+
+  :profiles {:dev {:dependencies [[midje "1.6.3"]]}})

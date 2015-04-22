@@ -3,55 +3,45 @@
 
   :url "https://github.com/fullcontact/full.monty"
 
-  :dependencies [[org.clojure/clojure _]
-                 ; base modules
-                 [fullcontact/full.core _]
-                 [fullcontact/full.time _]
-                 [fullcontact/camelsnake _]
-                 [fullcontact/full.json _]
-                 [fullcontact/full.async _]
-                 [fullcontact/full.dev _]
-                 [fullcontact/full.cache _]
-                 [fullcontact/full.metrics _]
-                 [fullcontact/full.http _]]
+  :license {:name "Eclipse Public License - v 1.0"
+            :url "http://www.eclipse.org/legal/epl-v10.html"
+            :distribution :repo}  
 
-  :plugins [[lein-modules "0.3.11"]]
-            
-  :modules {:subprocess nil
-            :inherited
-                {:deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]
-                 :url "https://github.com/fullcontact/full.monty"
-                 :scm {:dir "."}
-                 :license {:name "Eclipse Public License - v 1.0"
-                           :url "http://www.eclipse.org/legal/epl-v10.html"
-                           :distribution :repo}
-                 :dependencies [[org.clojure/clojure _]]                         
-                 :plugins [[lein-midje "3.1.3"]]}
-            :versions 
-                {org.clojure/clojure "1.6.0"
-                 midje "1.6.3"
-                 fullcontact/full.core :version
-                 fullcontact/full.time :version
-                 fullcontact/camelsnake :version
-                 fullcontact/full.json :version
-                 fullcontact/full.async :version
-                 fullcontact/full.dev :version
-                 fullcontact/full.cache :version
-                 fullcontact/full.metrics :version
-                 fullcontact/full.http :version
-                 fullcontact/full.rabbit :version}}
+  :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]                 
 
-  :profiles {:provided {:dependencies [[org.clojure/clojure _]]}
-             :dev {:dependencies [[midje _]]}}
+  :dependencies [[org.clojure/clojure "1.6.0"]
+                 ; base modules only
+                 [fullcontact/full.core "0.4.2-SNAPSHOT"]
+                 [fullcontact/full.time "0.4.2-SNAPSHOT"]
+                 [fullcontact/camelsnake "0.4.2-SNAPSHOT"]
+                 [fullcontact/full.json "0.4.2-SNAPSHOT"]
+                 [fullcontact/full.async "0.4.2-SNAPSHOT"]
+                 [fullcontact/full.dev "0.4.2-SNAPSHOT"]
+                 [fullcontact/full.cache "0.4.2-SNAPSHOT"]
+                 [fullcontact/full.metrics "0.4.2-SNAPSHOT"]
+                 [fullcontact/full.http "0.4.2-SNAPSHOT"]]
+
+  :plugins [[lein-sub "0.3.0"]
+            [lein-set-version "0.4.1"]]
+
+  :sub ["full.core"
+        "full.dev"
+        "camelsnake" 
+        "full.time" 
+        "full.json" 
+        "full.async" 
+        "full.metrics"
+        "full.cache"
+        "full.http"
+        "full.rabbit"]
 
   :release-tasks  [["vcs" "assert-committed"]
-                   ["change" "version" "leiningen.release/bump-version" "release"]
-                   ["modules" "change" "version" "leiningen.release/bump-version" "release"]
+                   ["set-version"]
+                   ["sub" "set-version"]
                    ["vcs" "commit"]
                    ["vcs" "tag"]
-                   ["modules" "deploy"]
-                   ["deploy"]
-                   ["change" "version" "leiningen.release/bump-version"]
-                   ["modules" "change" "version" "leiningen.release/bump-version"]
+                   ["sub" "deploy"]
+                   ["set-version" ":point"]
+                   ["sub" "set-version" ":point"]
                    ["vcs" "commit"]
                    ["vcs" "push"]])

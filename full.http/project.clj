@@ -1,13 +1,24 @@
 (defproject fullcontact/full.http "0.4.2-SNAPSHOT"
   :description "Async HTTP client and server on top of http-kit and core.async."
 
-  :dependencies [[http-kit "2.1.18"]
+  :url "https://github.com/fullcontact/full.monty"
+
+  :license {:name "Eclipse Public License - v 1.0"
+            :url "http://www.eclipse.org/legal/epl-v10.html"
+            :distribution :repo}  
+
+  :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]                   
+
+  :dependencies [[org.clojure/clojure "1.6.0"]
+                 [http-kit "2.1.18"]
                  [compojure "1.3.1"]
                  [javax.servlet/servlet-api "2.5"]
-                 [fullcontact/camelsnake _]  
-                 [fullcontact/full.json _]
-                 [fullcontact/full.metrics _]
-                 [fullcontact/full.core _]
-                 [fullcontact/full.async _]]
+                 [fullcontact/camelsnake "0.4.2-SNAPSHOT"]  
+                 [fullcontact/full.json "0.4.2-SNAPSHOT"]
+                 [fullcontact/full.metrics "0.4.2-SNAPSHOT"]
+                 [fullcontact/full.async "0.4.2-SNAPSHOT"]
+                 [fullcontact/full.core "0.4.2-SNAPSHOT"]]
 
-  :plugins [[lein-modules "0.3.11"]])
+  :plugins [[lein-midje "3.1.3"]]  
+
+  :profiles {:dev {:dependencies [[midje "1.6.3"]]}})
