@@ -44,6 +44,6 @@
                    ["modules" "deploy"]
                    ["deploy"]
                    ["change" "version" "leiningen.release/bump-version"]
-                   ["modules" "change" "version" "set" "leiningen.release/bump-version"]
+                   ["modules" "change" "version" "leiningen.release/bump-version"]
                    ["vcs" "commit"]
                    ["vcs" "push"]])

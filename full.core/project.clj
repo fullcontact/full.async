@@ -1,4 +1,4 @@
-(defproject fullcontact/full.core leiningen.release/bump-version
+(defproject fullcontact/full.core "0.3.1-SNAPSHOT"
   :description "FullContact's core Clojure library - logging, configuration and common helpers."
     
   :dependencies [[org.clojure/tools.cli "0.3.1"]

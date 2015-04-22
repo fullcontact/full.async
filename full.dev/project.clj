@@ -1,4 +1,4 @@
-(defproject fullcontact/full.dev leiningen.release/bump-version
+(defproject fullcontact/full.dev "0.3.1-SNAPSHOT"
   :description "Clojure's development and debugging helpers"
 
   :dependencies [[ns-tracker "0.2.2"]
