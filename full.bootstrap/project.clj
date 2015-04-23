@@ -18,4 +18,6 @@
                  [fullcontact/full.dev "0.4.2-SNAPSHOT"]
                  [fullcontact/full.cache "0.4.2-SNAPSHOT"]
                  [fullcontact/full.metrics "0.4.2-SNAPSHOT"]
-                 [fullcontact/full.http "0.4.2-SNAPSHOT"]])
+                 [fullcontact/full.http "0.4.2-SNAPSHOT"]]
+
+  :profiles {:dev {:dependencies [[midje "1.6.3"]]}})
