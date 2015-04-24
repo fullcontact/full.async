@@ -1,4 +1,4 @@
-(defproject fullcontact/full.bootstrap "0.4.4"
+(defproject fullcontact/full.bootstrap "0.4.5-SNAPSHOT"
   :description "Boostrap module that pulls in all commonly used full-monty dependencies."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -10,14 +10,14 @@
   :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]                   
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [fullcontact/full.core "0.4.4"]
-                 [fullcontact/full.time "0.4.4"]
-                 [fullcontact/camelsnake "0.4.4"]
-                 [fullcontact/full.json "0.4.4"]
-                 [fullcontact/full.async "0.4.4"]
-                 [fullcontact/full.dev "0.4.4"]
-                 [fullcontact/full.cache "0.4.4"]
-                 [fullcontact/full.metrics "0.4.4"]
-                 [fullcontact/full.http "0.4.4"]]
+                 [fullcontact/full.core "0.4.5-SNAPSHOT"]
+                 [fullcontact/full.time "0.4.5-SNAPSHOT"]
+                 [fullcontact/camelsnake "0.4.5-SNAPSHOT"]
+                 [fullcontact/full.json "0.4.5-SNAPSHOT"]
+                 [fullcontact/full.async "0.4.5-SNAPSHOT"]
+                 [fullcontact/full.dev "0.4.5-SNAPSHOT"]
+                 [fullcontact/full.cache "0.4.5-SNAPSHOT"]
+                 [fullcontact/full.metrics "0.4.5-SNAPSHOT"]
+                 [fullcontact/full.http "0.4.5-SNAPSHOT"]]
 
   :profiles {:dev {:dependencies [[midje "1.6.3"]]}})
