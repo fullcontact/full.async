@@ -9,6 +9,8 @@
 
   :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]                 
 
+  :java-source-paths ["src"]
+
   :dependencies [[org.clojure/clojure "1.6.0"]]
 
   :plugins [[lein-midje "3.1.3"]]  
