@@ -1,5 +1,5 @@
 (ns full.http.client
-  (:require [clojure.core.async :refer [chan >! close!]]
+  (:require [clojure.core.async :refer [go chan >! close!]]
             [clojure.string :refer [upper-case]]
             [org.httpkit.client :as httpkit]
             [camelsnake.core :refer [->camelCase]]
@@ -55,8 +55,8 @@
   [status headers body]
   (if (and (not= status 204)  ; has content
            (.startsWith (:content-type headers "") "application/json"))
-    (read-json body)
-    body))
+    (or (read-json body) {})
+    (or body "")))
 
 (defn- process-error-response
   [full-url status body cause]
@@ -74,17 +74,23 @@
 
 (defn- process-response
   [method full-url result-channel {:keys [opts status headers body error]}]
-  (go-try
-    (->> (if (or error (> status 299))
-           (process-error-response full-url status body error)
-           (let [res (if (= method :head) headers (parse-content status headers body))]
-             (log-debug status
-                        "Response " full-url
-                        "status:" status
-                        (when body (str "body:" body))
-                        "headers:" headers)
-             res))
-         (>! result-channel))
+  (go
+    (try
+      (->> (if (or error (> status 299))
+             (process-error-response full-url status body error)
+             (let [res (if (= method :head) headers (parse-content status headers body))]
+               (log-debug status
+                          "Response " full-url
+                          "status:" status
+                          (when body (str "body:" body))
+                          "headers:" headers)
+               res))
+           (>! result-channel))
+      (catch Exception e
+        (log/error e "Error parsing response")
+        (>! result-channel (ex-info (str "Error parsing response: " e)
+                                    {:status 599}
+                                    e))))
     (close! result-channel)))
 
 
