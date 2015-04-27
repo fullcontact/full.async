@@ -14,7 +14,8 @@
                  [org.clojure/tools.logging "0.3.0"]
                  [me.moocar/logback-gelf "0.10p1"]
                  [ch.qos.logback/logback-classic "1.1.2"]
-                 [clj-yaml "0.4.0"]]
+                 [clj-yaml "0.4.0"]
+                 [commons-codec/commons-codec "1.10"]]
 
   :aot :all
 
