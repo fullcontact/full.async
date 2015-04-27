@@ -96,7 +96,8 @@
                             :tags ["timeit"]
                             :state (if fail#
                                      "critical"
-                                     "ok")))
+                                     "ok")
+                            :description (when fail# (str res#))))
        (gauge g# (update-timeit-gauge (:service event#) dec))
        (if fail#
          (throw res#)
