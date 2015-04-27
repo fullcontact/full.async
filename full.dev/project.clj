@@ -1,4 +1,4 @@
-(defproject fullcontact/full.dev "0.4.5"
+(defproject fullcontact/full.dev "0.4.6-SNAPSHOT"
   :description "Clojure's development and debugging helpers"
 
   :url "https://github.com/fullcontact/full.monty"
@@ -11,7 +11,7 @@
 
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [ns-tracker "0.2.2"]
-                 [fullcontact/full.core "0.4.5"]]
+                 [fullcontact/full.core "0.4.6-SNAPSHOT"]]
 
   :plugins [[lein-midje "3.1.3"]]  
 
