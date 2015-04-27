@@ -39,8 +39,9 @@
 (defn normalize-response> [handler>]
   (fn [req]
     (go-try
-      (let [res (<? (handler> req))]
-        (assoc (or res {})
+      (let [res (<? (handler> req))
+            resm (if (map? res) res {:body res})]
+        (assoc resm
           :body (:body res)
           :status (or (:status res) 200)
           :headers (or (:headers res) {}))))))
