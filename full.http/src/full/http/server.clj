@@ -228,7 +228,8 @@
 
 
 ; just alias Compjure's defmacro for convenience
-(def #^{:macro true} defroutes #'compojure/defroutes)
+(defmacro defroutes [name & routes]
+  `(compojure/defroutes ~name ~@routes))
 
 (defmacro go-try-assoc-endpoint [endpoint & body]
   `(go-try
