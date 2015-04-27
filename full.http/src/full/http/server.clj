@@ -99,10 +99,19 @@
       (try
         (<? (handler> req))
         (catch Exception ex
-          (logger ex)
-          (-> (renderer ex)
-              (assoc :endpoint (-> ex (ex-data) :endpoint))
-              (assoc :error (log-error-message ex))))))))
+          (try
+            (logger ex)
+            (catch Throwable e
+              (log/error e "Error logging error")))
+          (try
+            (-> (renderer ex)
+                (assoc :endpoint (-> ex (ex-data) :endpoint))
+                (assoc :error (log-error-message ex)))
+            (catch Throwable e
+              (log/error e "Error rendering error")
+              {:body "Server Error"
+               :headers {}
+               :status 500})))))))
 
 (def metric-states {:ok "ok"
                     :warn "warning"
@@ -118,7 +127,11 @@
             method (.toUpperCase (name (:request-method req)))
             uri (str (:uri req) (when-let [q (:query-string req)] (str "?" q)))
             res (<? (handler> req))
-            status (:status res)
+            status (or (:status res)
+                       (do
+                         (log/error "Nil status, request:" req
+                                    "response:" res)
+                         500))
             req-time (ellapsed-time start-time)
             mdc (merge (or (:mdc res) {})
                        {:method method

@@ -56,7 +56,6 @@
   is an issue communicating with the mother ship. Properly handles
   exceptions with ex-data."
   [ex]
-  (let [ex-data (ex-data ex)]
-    (if ex-data
-      (NewRelic/noticeError ex ex-data)
-      (NewRelic/noticeError ex))))
+  (if-let [ex-data (ex-data ex)]
+    (NewRelic/noticeError ex ex-data)
+    (NewRelic/noticeError ex)))
