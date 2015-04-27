@@ -1,4 +1,4 @@
-(defproject fullcontact/full.metrics "0.4.7-SNAPSHOT"
+(defproject fullcontact/full.metrics "0.4.7"
   :description "Clojure application metrics sugar for Riemann backend."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -12,8 +12,8 @@
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [riemann-clojure-client "0.2.11"]
                  [com.climate/clj-newrelic "0.2.1"]                 
-                 [fullcontact/full.async "0.4.7-SNAPSHOT"]
-                 [fullcontact/full.core "0.4.7-SNAPSHOT"]]
+                 [fullcontact/full.async "0.4.7"]
+                 [fullcontact/full.core "0.4.7"]]
 
   :plugins [[lein-midje "3.1.3"]]  
 
