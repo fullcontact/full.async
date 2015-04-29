@@ -21,6 +21,7 @@
         "full.http"
         "full.bootstrap"
         ; optional modules
+        "full.rollbar"
         "full.rabbit"]
 
   :release-tasks  [["vcs" "assert-committed"]
