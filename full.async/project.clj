@@ -1,4 +1,4 @@
-(defproject fullcontact/full.async "0.4.11-SNAPSHOT"
+(defproject fullcontact/full.async "0.4.11"
   :description "Extensions and helpers for core.async."
 
   :url "https://github.com/fullcontact/full.monty"
