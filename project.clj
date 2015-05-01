@@ -22,7 +22,8 @@
         "full.bootstrap"
         ; optional modules
         "full.rollbar"
-        "full.rabbit"]
+        "full.rabbit"
+        "full.liquibase"]
 
   :release-tasks  [["vcs" "assert-committed"]
                    ["set-version"]
