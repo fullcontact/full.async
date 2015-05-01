@@ -89,7 +89,7 @@
          start-time# (time-bookmark)
          event# (wrap-event event#)
          g# (update-in event# [:service] str "/gauge")]
-     (gauge g#  (update-timeit-gauge (:service event#) inc))
+     (gauge g# (update-timeit-gauge (:service event#) inc))
      (let [res# (try ~@body (catch Throwable t# t#))
            fail# (instance? Throwable res#)]
        (track (assoc event# :metric (ellapsed-time start-time#)
