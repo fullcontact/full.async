@@ -5,7 +5,9 @@
             [ring.util.response :refer [content-type]]
             [compojure.response :as response]
             [compojure.core :as compojure]
-            [compojure.handler :as handler]
+            [ring.middleware.keyword-params :refer [wrap-keyword-params]]
+            [ring.middleware.nested-params :refer [wrap-nested-params]]
+            [ring.middleware.params :refer [wrap-params]]
             [org.httpkit.server :as httpkit]
             [full.core.sugar :refer :all]
             [full.core.log :as log]
@@ -205,19 +207,21 @@
 
 
 (defn json-api
-  [routes & {:keys [exception-logger exception-renderer logger log-params]
+  [routes & {:keys [exception-logger exception-renderer logger]
              :or {exception-logger server-error-exception-logger
                   exception-renderer json-exception-renderer
-                  logger default-logger
-                  log-params {}}}]
-  (-> (handler/api routes)
+                  logger default-logger}}]
+  (-> routes
       (handle-head>)
       (normalize-response>)
       (json-response>)
       (handle-exceptions> :logger exception-logger
                           :renderer exception-renderer)
       (log-track-request> :logger logger
-                          :log-params log-params)))
+                          :log-params log-params)
+      wrap-keyword-params
+      wrap-nested-params
+      wrap-params))
 
 
 ;;; ROUTING
