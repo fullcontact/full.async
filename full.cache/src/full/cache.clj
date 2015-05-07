@@ -1,9 +1,10 @@
 (ns full.cache
-  (:require [taoensso.nippy :as nippy]
+  (:require [clojure.walk :refer [postwalk]]
+            [clojure.core.async :refer [>! <! chan mult tap close!]]
+            [taoensso.nippy :as nippy]
             [full.core.log :as log]
             [full.core.config :refer [defoptconfig]]
-            [full.async :refer [go-try]]
-            [clojure.core.async :refer [>! <! chan mult tap close!]])
+            [full.async :refer [go-try]])
   (:import (java.util.logging Logger Level)
            (net.jodah.expiringmap ExpiringMap ExpiringMap$ExpirationPolicy)
            (java.util.concurrent TimeUnit)
@@ -171,8 +172,11 @@
 (defn lset
   [k v timeout]
   {:pre [(pos? timeout)]}
-  (.put local-cache k v ExpiringMap$ExpirationPolicy/CREATED timeout TimeUnit/SECONDS)
-  v)
+  (let [realized-value (postwalk identity v)]
+    (.put local-cache
+          k realized-value
+          ExpiringMap$ExpirationPolicy/CREATED timeout TimeUnit/SECONDS)
+    realized-value))
 
 (defn lget-or-load
   [k loader timeout]
