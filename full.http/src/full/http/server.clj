@@ -120,9 +120,8 @@
                     :error "critical"})
 
 (defn log-track-request>
-  [handler> & {:keys [logger log-params]
-               :or {logger default-logger
-                    log-params {}}}]
+  [handler> & {:keys [logger]
+               :or {logger default-logger}}]
   (fn [req]
     (go-try
       (let [start-time (time-bookmark)
@@ -141,8 +140,7 @@
                         :ua (get-in req [:headers "user-agent"])
                         :status status
                         :time (long req-time)
-                        :endpoint (:endpoint res)}
-                       (remap (:params req) log-params))
+                        :endpoint (:endpoint res)})
             severity (cond
                        (and (>= status 200) (< status 400)) :ok
                        (and (>= status 400) (< status 500)) :warn
@@ -217,8 +215,7 @@
       (json-response>)
       (handle-exceptions> :logger exception-logger
                           :renderer exception-renderer)
-      (log-track-request> :logger logger
-                          :log-params log-params)
+      (log-track-request> :logger logger)
       wrap-keyword-params
       wrap-nested-params
       wrap-params))
