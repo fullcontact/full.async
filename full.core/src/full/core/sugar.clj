@@ -267,6 +267,9 @@
 (defmacro fn-name [name args & body]
   `(with-mname ~name (fn ~args ~@body)))
 
+(defmethod print-method clojure.lang.AFunction [v ^java.io.Writer w]
+  ; if function has :name in metadata, this will make it appear in (print ...)
+  (.write w (or (mname v) (str v))))
 
 ;;; Conditional threading
 
