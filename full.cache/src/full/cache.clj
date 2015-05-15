@@ -122,6 +122,28 @@
          (throw e)
          (log/warn k "not added to cache due to" e))))))
 
+(defn rincr
+  [k by timeout & {:keys [throw? default] :or {default 0}}]
+  (try
+    (let [res (.incr @client k by default timeout)]
+      (log/info "Incremented value for" k "by:" by "to" res)
+      res)
+    (catch Exception e
+      (if throw?
+        (throw e)
+        (log/warn k "not incremented due to" e)))))
+
+(defn rdecr
+  [k by timeout & {:keys [throw? default] :or {default 0}}]
+  (try
+    (let [res (.decr @client k by default timeout)]
+      (log/info "Decremented value for" k "by:" by "to" res)
+      res)
+    (catch Exception e
+      (if throw?
+        (throw e)
+        (log/warn k "not decremented due to" e)))))
+
 (defn radd-or-get
   ([k v] (radd-or-get k v 0))
   ([k v timeout & {:keys [throw?]}]
