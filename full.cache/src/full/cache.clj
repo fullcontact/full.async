@@ -107,6 +107,17 @@
          (log/warn k "not added to cache due to" e))))
    v))
 
+(defn rtouch
+  [k timeout & {:keys [throw?]}]
+  (try
+    (.touch @client k timeout)
+    (log/debug "Updated timeout for" k "to" timeout)
+    (catch Exception e
+      (if throw?
+        (throw e)
+        (log/warn k "not touched due to" e)))))
+
+
 (defn radd
   ([k v] (radd k v 0))
   ([k v timeout & {:keys [throw?]}]
@@ -126,7 +137,7 @@
   [k by timeout & {:keys [throw? default] :or {default 0}}]
   (try
     (let [res (.incr @client k by default timeout)]
-      (log/info "Incremented value for" k "by:" by "to" res)
+      (log/debug "Incremented value for" k "by:" by "to" res)
       res)
     (catch Exception e
       (if throw?
@@ -137,7 +148,7 @@
   [k by timeout & {:keys [throw? default] :or {default 0}}]
   (try
     (let [res (.decr @client k by default timeout)]
-      (log/info "Decremented value for" k "by:" by "to" res)
+      (log/debug "Decremented value for" k "by:" by "to" res)
       res)
     (catch Exception e
       (if throw?
