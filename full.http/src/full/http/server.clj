@@ -13,7 +13,8 @@
             [full.core.log :as log]
             [full.async :refer :all]
             [full.json :refer [write-json]]
-            [full.metrics :as metrics])
+            [full.metrics :as metrics]
+            [ring.middleware.cors :as rc])
   (:import (clojure.core.async.impl.protocols ReadPort)
            (clojure.lang ExceptionInfo)
            (org.httpkit HttpStatus)))
@@ -47,6 +48,18 @@
           :body (:body res)
           :status (or (:status res) 200)
           :headers (or (:headers res) {}))))))
+
+(defn wrap-cors>
+  [handler & access-control]
+  (let [access-control (rc/normalize-config access-control)]
+    (fn [request]
+      (go-try
+        (cond
+          (and (rc/preflight? request) (rc/allow-request? request access-control))
+            {:status 200 :headers {}}
+          (rc/allow-request? request access-control)
+            (rc/add-access-control request access-control (<? (handler request)))
+          :else (<? (handler request)))))))
 
 (def default-logger (org.slf4j.LoggerFactory/getLogger "full.http.server.request"))
 

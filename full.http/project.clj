@@ -13,6 +13,7 @@
                  [http-kit "2.1.18"]
                  [compojure "1.3.1"]
                  [javax.servlet/servlet-api "2.5"]
+                 [ring-cors "0.1.7"]
                  [fullcontact/camelsnake "0.4.15-SNAPSHOT"]
                  [fullcontact/full.json "0.4.15-SNAPSHOT"]
                  [fullcontact/full.metrics "0.4.15-SNAPSHOT"]
