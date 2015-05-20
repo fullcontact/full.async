@@ -1,4 +1,4 @@
-(defproject fullcontact/camelsnake "0.4.15"
+(defproject fullcontact/camelsnake "0.4.16-SNAPSHOT"
   :description "String and keyword transformation between cases."
 
   :url "https://github.com/fullcontact/full.monty"

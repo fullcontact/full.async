@@ -1,4 +1,4 @@
-(defproject fullcontact/full.rabbit "0.4.15"
+(defproject fullcontact/full.rabbit "0.4.16-SNAPSHOT"
   :description "RabbitMQ sugar on top of langohr."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -11,10 +11,10 @@
 
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [com.novemberain/langohr "3.0.0-rc2"]
-                 [fullcontact/full.metrics "0.4.15"]
-                 [fullcontact/full.json "0.4.15"]
-                 [fullcontact/full.async "0.4.15"]
-                 [fullcontact/full.core "0.4.15"]]
+                 [fullcontact/full.metrics "0.4.16-SNAPSHOT"]
+                 [fullcontact/full.json "0.4.16-SNAPSHOT"]
+                 [fullcontact/full.async "0.4.16-SNAPSHOT"]
+                 [fullcontact/full.core "0.4.16-SNAPSHOT"]]
 
   :aot :all
 
