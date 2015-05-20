@@ -1,4 +1,4 @@
-(defproject fullcontact/full.rollbar "0.4.15-SNAPSHOT"
+(defproject fullcontact/full.rollbar "0.4.15"
   :description "Library to ship exceptions and request information to the rollbar logging service."
 
   :url "https://github.com/fullcontact/full.monty"
