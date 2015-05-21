@@ -10,12 +10,10 @@
   :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [fullcontact/camelsnake "0.4.9"]
-                 [fullcontact/full.json "0.4.9"]
-                 [fullcontact/full.metrics "0.4.9"]
-                 [fullcontact/full.async "0.4.9"]
-                 [fullcontact/full.core "0.4.9"]
-                 [fullcontact/full.http "0.4.9"]]
+                 [fullcontact/camelsnake "0.4.17-SNAPSHOT"]
+                 [fullcontact/full.async "0.4.17-SNAPSHOT"]
+                 [fullcontact/full.core "0.4.17-SNAPSHOT"]
+                 [fullcontact/full.http "0.4.17-SNAPSHOT"]]
   :aot :all
 
   :plugins [[lein-midje "3.1.3"]]
