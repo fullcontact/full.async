@@ -56,7 +56,7 @@
       (go-try
         (cond
           (and (rc/preflight? request) (rc/allow-request? request access-control))
-            {:status 200 :headers {}}
+            (rc/add-access-control request access-control {:status 200 :headers {}})
           (rc/allow-request? request access-control)
             (rc/add-access-control request access-control (<? (handler request)))
           :else (<? (handler request)))))))
