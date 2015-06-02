@@ -3,6 +3,7 @@
   (:require [full.core.log :as log]
             [clojure.string :as str]
             [clojure.stacktrace :as st]
+            [clojure.edn :as edn]
             [ns-tracker.core :as tracker]))
 
 
@@ -21,6 +22,12 @@
 
 (def lc "Log context format helper"
   (partial format "%15s>"))
+
+
+;;; Working with edn files
+
+(defn slurp-edn [f & opts]
+  (edn/read-string (apply slurp f opts)))
 
 
 ;;; Dynamic code reloading
