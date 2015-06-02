@@ -57,16 +57,22 @@
       m)
     (dissoc m k)))
 
-(defn move-in [m from to]
+(defn move-in
+  "Moves a value in nested assoc structure."
+  [m from to]
   (-> (assoc-in m to (get-in m from))
       (dissoc-in from)))
 
-(defn ?move-in [m from to]
+(defn ?move-in
+  "Moves a value in nested assoc structure, if it is not nil."
+  [m from to]
   (if (get-in m from)
     (move-in m from to)
     m))
 
-(defn ?update-in [m k f]
+(defn ?update-in
+  "Performs a regular `update-in` if the initial value is not nil."
+  [m k f]
   (if (get-in m k)
     (update-in m k f)
     m))
@@ -96,7 +102,9 @@
 (defn mapply [f & args]
   (apply f (apply concat (butlast args) (last args))))
 
-(defn ?hash-map [& keyvals]
+(defn ?hash-map
+  "Creates a hash-map from all key value pairs where value is not nil."
+  [& keyvals]
   (apply ?assoc {} keyvals))
 
 
