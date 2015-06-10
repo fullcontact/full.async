@@ -1,9 +1,10 @@
 (ns full.dev
-  "Debug helpers."
+  "Debug and development helpers."
   (:require [full.core.log :as log]
-            [clojure.string :as str]
+            [clojure.string :as s]
             [clojure.stacktrace :as st]
             [clojure.edn :as edn]
+            [clojure.pprint :refer [pprint]]
             [ns-tracker.core :as tracker]))
 
 
@@ -24,10 +25,17 @@
   (partial format "%15s>"))
 
 
-;;; Working with edn files
+;;; File I/O
 
 (defn slurp-edn [f & opts]
   (edn/read-string (apply slurp f opts)))
+
+(defn slurp-lines [f & opts]
+  (s/split (apply slurp f opts) #"\n"))
+
+(defn spit-pprint [f content & opts]
+  (with-open [^java.io.Writer writer (apply clojure.java.io/writer f opts)]
+    (pprint content writer)))
 
 
 ;;; Dynamic code reloading
