@@ -86,9 +86,14 @@
           (<?)
           (response-parser)))))
 
+(defn read-edn [s]
+  (let [opts {:readers (assoc *data-readers* 'inst read-instant-date-time)}])
+  (edn/read-string {:readers (assoc *data-readers* 'inst read-instant-date-time)}
+                   s))
+
 (defn get-edn>
   [^String bucket-name, ^String key
    & {:keys [headers]}]
   (get-object> bucket-name key
                :headers headers
-               :response-parser (comp edn/read-string string-response-parser)))
+               :response-parser (comp read-edn string-response-parser)))

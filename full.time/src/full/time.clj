@@ -1,11 +1,14 @@
 (ns full.time
-  (:require [clj-time.core :as tt]
+  (:require [clojure.instant :as i]
+            [clj-time.core :as tt]
             [clj-time.format :as tf]
             [clj-time.coerce :as tc]
             [full.core.log :as log])
   (:import (org.joda.time.format DateTimeFormat)
            (java.util Locale)
-           (org.joda.time.tz FixedDateTimeZone)))
+           (org.joda.time.tz FixedDateTimeZone)
+           (org.joda.time DateTime)
+           (java.io Writer)))
 
 
 ;;; date time helpers ;;;
@@ -86,3 +89,29 @@
 
 (defn dt-between [dt from to]
   (tt/within? (tt/interval from to) dt))
+
+
+;;; (DE)SERIALZIATION
+
+
+(defmethod print-method DateTime
+  [^DateTime d ^Writer w]
+  (#'i/print-date (.toDate d) w))
+
+(defmethod print-dup DateTime
+  [^DateTime d ^Writer w]
+  (#'i/print-date (.toDate d) w))
+
+(defn construct-dt [years months days hours minutes seconds nanoseconds
+                    offset-sign offset-hours offset-minutes]
+  (DateTime. (.getTimeInMillis (#'i/construct-calendar years months days
+                                 hours minutes seconds 0
+                                 offset-sign offset-hours offset-minutes))))
+(def read-instant-dt
+  "To read an instant as an org.joda.time.DateTime, bind *data-readers* to a
+map with this var as the value for the 'inst key."
+  (partial i/parse-timestamp (i/validated construct-dt)))
+
+(defmacro with-dt-reader [& body]
+  `(binding [*data-readers* (assoc *data-readers* '~'inst read-instant-dt)]
+     ~@body))
