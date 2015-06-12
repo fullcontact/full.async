@@ -23,7 +23,8 @@
         ; optional modules
         "full.rollbar"
         "full.rabbit"
-        "full.liquibase"]
+        "full.liquibase"
+        "full.aws"]
 
   :release-tasks  [["vcs" "assert-committed"]
                    ["set-version"]
