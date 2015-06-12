@@ -11,6 +11,7 @@
   (dt<-iso-ts "2014-01-02T03:04:05.678Z") => (t/date-time 2014 1 2 3 4 5 678)
   (dt->iso-ts (t/date-time 2014 1 2 3 4 5 678)) => "2014-01-02T03:04:05.678Z"
   (dt->iso-ts (t/date-time 2014 1 2 3 4 5)) => "2014-01-02T03:04:05.000Z"
+  (dt<-rfc822-ts "Fri, 12 Jun 2015 17:50:00 UTC") => (t/date-time 2015 6 12 17 50 0 0)
   (d<-iso-d "2014-01-02") => (t/local-date 2014 1 2)
   (d<-iso-d "0000-01-02") => (t/local-date 0 1 2)
   (d<-iso-d "--01-02") => (t/local-date 0 1 2)

@@ -2,7 +2,10 @@
   (:require [clj-time.core :as tt]
             [clj-time.format :as tf]
             [clj-time.coerce :as tc]
-            [full.core.log :as log]))
+            [full.core.log :as log])
+  (:import (org.joda.time.format DateTimeFormat)
+           (java.util Locale)
+           (org.joda.time.tz FixedDateTimeZone)))
 
 
 ;;; date time helpers ;;;
@@ -14,6 +17,9 @@
 (def iso-d-formatter (tf/formatters :date))
 (def iso-year-month-formatter (tf/formatters :year-month))
 (def iso-year-formatter (tf/formatters :year))
+(def rfc822-formatter (-> (DateTimeFormat/forPattern "EEE, dd MMM yyyy HH:mm:ss z")
+                          (.withLocale Locale/US)
+                          (.withZone (FixedDateTimeZone. "UTC" "UTC" 0 0))))
 
 (defn dt<-iso-ts [ts]
   (when ts
@@ -26,12 +32,24 @@
             (try
               (tf/parse iso-ts-formatter-no-ms-tz ts)
               (catch Exception e
-                (log/error "Error parsing timestamp1" ts (str e))))))))))
+                (log/error "Error parsing timestamp" ts (str e))))))))))
 
 (defn dt->iso-ts
   "Creates a DateTime object from ISO timestamp."
   [dt]
   (when dt (tf/unparse iso-ts-formatter dt)))
+
+(defn dt<-rfc822-ts
+  [ts]
+  (when ts
+    (try
+      (tf/parse rfc822-formatter ts)
+      (catch Exception e
+        (log/error "Error parsing timestamp" ts (str e))))))
+
+(defn dt->rfc822-ts
+  [dt]
+  (when dt (tf/unparse rfc822-formatter dt)))
 
 (defn d<-iso-d [ts]
   (when ts
