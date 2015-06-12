@@ -87,8 +87,8 @@
           (response-parser)))))
 
 (defn read-edn [s]
-  (let [opts {:readers (assoc *data-readers* 'inst read-instant-date-time)}])
-  (edn/read-string {:readers (assoc *data-readers* 'inst read-instant-date-time)}
+  (let [opts {:readers (assoc *data-readers* 'inst read-instant-dt)}])
+  (edn/read-string {:readers (assoc *data-readers* 'inst read-instant-dt)}
                    s))
 
 (defn get-edn>
