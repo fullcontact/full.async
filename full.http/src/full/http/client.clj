@@ -52,10 +52,10 @@
     body))
 
 (defn- parse-content
-  [status headers body]
+  [status headers body json-key-fn]
   (if (and (not= status 204)  ; has content
            (.startsWith (:content-type headers "") "application/json"))
-    (or (read-json body) {})
+    (or (read-json body :json-key-fn json-key-fn) {})
     (or body "")))
 
 (defn- process-error-response
@@ -73,12 +73,15 @@
     ex))
 
 (defn- process-response
-  [method full-url result-channel {:keys [opts status headers body error]}]
+  [method full-url result-channel json-key-fn
+   {:keys [opts status headers body error]}]
   (go
     (try
       (->> (if (or error (> status 299))
              (process-error-response full-url status body error)
-             (let [res (if (= method :head) headers (parse-content status headers body))]
+             (let [res (if (= method :head)
+                         headers
+                         (parse-content status headers body json-key-fn))]
                (log-debug status
                           "Response " full-url
                           "status:" status
@@ -100,8 +103,8 @@
 (defn req>
   "Performs asynchronous API request. Always returns result channel which will
   return either response or exception."
-  [{:keys [base-url resource url method params body headers timeout form-params
-           body-json-key-fn]
+  [{:keys [base-url resource url method params body headers basic-auth
+           timeout form-params body-json-key-fn response-json-key-fn]
     :or {method :get
          body-json-key-fn ->camelCase}}]
   {:pre [(or url (and base-url resource))]}
@@ -111,6 +114,7 @@
              :query-params params
              :headers headers
              :form-params form-params
+             :basic-auth basic-auth
              :timeout (* (or timeout @http-timeout default-http-timeout) 1000)}
         full-url (str (upper-case (name method))
                       " " (:url req)
@@ -120,5 +124,9 @@
     (log/debug "Request" full-url
                (if-let [body (:body req)] (str "body:" body) "")
                (if-let [headers (:headers req)] (str "headers:" headers) ""))
-    (httpkit/request req (partial process-response method full-url result-channel))
+    (httpkit/request req (partial process-response
+                                  method
+                                  full-url
+                                  result-channel
+                                  response-json-key-fn))
     result-channel))

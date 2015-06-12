@@ -38,13 +38,13 @@
 (defn read-json
   "Parses a JSON string and returns a hash-map"
   [raw & {:keys [json-key-fn preserve-keys]
-          :or {json-key-fn ->kebab-case-keyword
-               preserve-keys []}}]
-  (when raw
-    (if (not-empty preserve-keys)
-      (-> (json/parse-string raw )
-          (convert-keys json-key-fn preserve-keys))
-      (json/parse-string raw json-key-fn))))
+          :or {preserve-keys []}}]
+  (let [json-key-fn (or json-key-fn ->kebab-case-keyword)]
+    (when raw
+      (if (not-empty preserve-keys)
+        (-> (json/parse-string raw )
+            (convert-keys json-key-fn preserve-keys))
+        (json/parse-string raw json-key-fn)))))
 
 (defn write-json [obj & {:keys [json-key-fn]
                          :or {json-key-fn ->camelCase}}]
