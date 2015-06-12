@@ -1,5 +1,6 @@
 (ns full.async
-  (:require [clojure.core.async :refer [<! <!! >! alts! go go-loop chan] :as async]))
+  (:require [clojure.core.async :refer [<! <!! >! alts! go go-loop chan thread]
+             :as async]))
 
 (defn throw-if-throwable
   "Helper method that checks if x is Throwable and if yes, wraps it in a new
@@ -36,6 +37,13 @@
   is thrown."
   [& body]
   `(go (try ~@body (catch Throwable e# e#))))
+
+(defmacro thread-try
+  "Asynchronously executes the body in a thread. Returns a channel which
+  will receive the result of the body when completed or an exception if one
+  is thrown."
+  [& body]
+  `(thread (try ~@body (catch Throwable e# e#))))
 
 (defmacro go-retry
   [{:keys [exception retries delay error-fn]
