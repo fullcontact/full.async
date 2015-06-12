@@ -2,7 +2,7 @@
   (:require [clojure.core.async :refer [go chan >! close!]]
             [clojure.string :refer [upper-case]]
             [org.httpkit.client :as httpkit]
-            [camelsnake.core :refer [->camelCase]]
+            [camelsnake.core :refer [->camelCase ->kebab-case-keyword]]
             [full.core.sugar :refer :all]
             [full.core.config :refer [defoptconfig]]
             [full.core.log :as log]
@@ -51,13 +51,6 @@
     (write-json body :json-key-fn json-key-fn)
     body))
 
-(defn- parse-content
-  [status headers body json-key-fn]
-  (if (and (not= status 204)  ; has content
-           (.startsWith (:content-type headers "") "application/json"))
-    (or (read-json body :json-key-fn json-key-fn) {})
-    (or body "")))
-
 (defn- process-error-response
   [full-url status body cause]
   (let [status (if cause connection-error-status status)
@@ -73,15 +66,15 @@
     ex))
 
 (defn- process-response
-  [method full-url result-channel json-key-fn
-   {:keys [opts status headers body error]}]
+  [req full-url result-channel response-parser
+   {:keys [opts status headers body error] :as res}]
   (go
     (try
       (->> (if (or error (> status 299))
              (process-error-response full-url status body error)
-             (let [res (if (= method :head)
-                         headers
-                         (parse-content status headers body json-key-fn))]
+             (let [res (if response-parser
+                         (response-parser res)
+                         res)]
                (log-debug status
                           "Response " full-url
                           "status:" status
@@ -96,6 +89,22 @@
                                     e))))
     (close! result-channel)))
 
+(defn create-json-response-parser
+  [json-key-fn]
+  (fn [{:keys [opts status headers body]}]
+    (cond
+      (= :head (:method opts)) headers
+      (and (not= status 204)  ; has content
+           (.startsWith (:content-type headers "") "application/json"))
+      (or (read-json body :json-key-fn json-key-fn) {})
+      :else (or body ""))))
+
+(def raw-json-response-parser
+  (create-json-response-parser identity))
+
+(def kebab-case-json-response-parser
+  (create-json-response-parser ->kebab-case-keyword))
+
 
 ;;; REQUEST
 
@@ -104,9 +113,10 @@
   "Performs asynchronous API request. Always returns result channel which will
   return either response or exception."
   [{:keys [base-url resource url method params body headers basic-auth
-           timeout form-params body-json-key-fn response-json-key-fn]
+           timeout form-params body-json-key-fn response-parser]
     :or {method :get
-         body-json-key-fn ->camelCase}}]
+         body-json-key-fn ->camelCase
+         response-parser kebab-case-json-response-parser}}]
   {:pre [(or url (and base-url resource))]}
   (let [req {:url (or url (str base-url "/" resource))
              :method method
@@ -125,8 +135,8 @@
                (if-let [body (:body req)] (str "body:" body) "")
                (if-let [headers (:headers req)] (str "headers:" headers) ""))
     (httpkit/request req (partial process-response
-                                  method
+                                  req
                                   full-url
                                   result-channel
-                                  response-json-key-fn))
+                                  response-parser))
     result-channel))
