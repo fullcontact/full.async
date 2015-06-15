@@ -1,4 +1,4 @@
-(defproject fullcontact/full.aws "0.4.23"
+(defproject fullcontact/full.aws "0.4.24-SNAPSHOT"
   :description "Async Amazon Webservices client."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -11,11 +11,11 @@
 
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [com.amazonaws/aws-java-sdk "1.10.0"]
-                 [fullcontact/full.metrics "0.4.23"]
-                 [fullcontact/full.http "0.4.23"]
-                 [fullcontact/full.json "0.4.23"]
-                 [fullcontact/full.async "0.4.23"]
-                 [fullcontact/full.core "0.4.23"]]
+                 [fullcontact/full.metrics "0.4.24-SNAPSHOT"]
+                 [fullcontact/full.http "0.4.24-SNAPSHOT"]
+                 [fullcontact/full.json "0.4.24-SNAPSHOT"]
+                 [fullcontact/full.async "0.4.24-SNAPSHOT"]
+                 [fullcontact/full.core "0.4.24-SNAPSHOT"]]
 
   :aot :all
 
