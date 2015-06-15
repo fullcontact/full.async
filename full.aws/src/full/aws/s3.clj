@@ -35,9 +35,12 @@
 
 (defn put-object>
   "Create or updates S3 object. Returns a channel that will yield single
-  etag on success or exception on error."
+  etag on success or exception on error.
+  Optional parameters:
+    * :headers - HTTP headers such as Content-Type
+    * :timeout - request timeout in seconds"
   [^String bucket-name, ^String key, ^String body
-   & {:keys [headers]}]
+   & {:keys [headers timeout]}]
   {:pre [bucket-name key body]}
   (go-try
     (let [content-type (or (get headers "Content-Type")
@@ -55,6 +58,7 @@
                       :method :put
                       :body body
                       :headers headers
+                      :timeout timeout
                       ; we want raw response to access headers
                       :response-parser nil})
           (<?)
@@ -63,10 +67,11 @@
 
 (defn put-edn>
   [^String bucket-name, ^String key, ^String object
-  & {:keys [headers]}]
+  & {:keys [headers timeout]}]
   (put-object> bucket-name key (pr-str object)
                :headers (-> (or headers {})
-                            (assoc "Content-Type" "application/edn"))))
+                            (assoc "Content-Type" "application/edn"))
+               :timeout timeout))
 
 (defn- string-response-parser [res]
   (cond
@@ -76,13 +81,14 @@
 
 (defn get-object>
   [^String bucket-name, ^String key
-   & {:keys [headers response-parser]
+   & {:keys [headers timeout response-parser]
       :or {response-parser string-response-parser}}]
   (go-try
     (let [url (.generatePresignedUrl @client (presign-request bucket-name key))]
       (-> (http/req> {:url (str url)
                       :method :get
-                      :headers headers})
+                      :headers headers
+                      :timeout timeout})
           (<?)
           (response-parser)))))
 
@@ -93,7 +99,8 @@
 
 (defn get-edn>
   [^String bucket-name, ^String key
-   & {:keys [headers]}]
+   & {:keys [headers timeout]}]
   (get-object> bucket-name key
                :headers headers
+               :timeout timeout
                :response-parser (comp read-edn string-response-parser)))
