@@ -185,7 +185,6 @@
                                (serializer body)
                                (str body)))
         (cond-> delay-seconds (.withDelaySeconds (int delay-seconds)))
-        (#(do (log/error "DELAY" (.getDelaySeconds %)) %))
         (->> (.sendMessage @client))
         (.getMessageId))))
 
@@ -257,31 +256,32 @@
                                           (int visibility-timeout))
          (.changeMessageVisibility @client))))
 
+(defn- retry-message>
+  [message retries]
+  (go
+    (if retries
+      (let [receive-count (:approximate-receive-count
+                            (:attributes message))
+            delay (or (get retries (dec receive-count))
+                      (last retries))
+            ; distribute the messages over a time period
+            delay (int (+ (/ delay 2) (rand-int delay)))]
+        ; Simply make message invisible for the given time.
+        (<! (change-message-visibility> message delay))
+        (str "will retry in " delay "sec "
+             "(" receive-count ")"))
+      ; else
+      "not retrying")))
+
 (defn- handle-message>
   [message handler> retries]
   (go
     (try
       (<? (handler> message))
       (catch Throwable ex
-        (let [retry-message (if retries
-                              (let [receive-count (:approximate-receive-count
-                                                    (:attributes message))
-                                    delay (or (get retries (dec receive-count))
-                                              (last retries))
-                                    ; distribute the messages over a time period
-                                    delay (int (+ (/ delay 2) (rand-int delay)))
-                                    ]
-                                ; Simply make message invisible for the given
-                                ; time.
-                                (<! (change-message-visibility> message
-                                                                delay))
-                                (str "will retry in " delay "sec "
-                                     "(" receive-count ")"))
-                              ; else
-                              "not retrying")]
-          ; else - simply log
+        (let [message (<! (retry-message> message retries))]
           (log/error (str "Error processing message " message ": " ex
-                          ", " retry-message)))))))
+                          ", " message)))))))
 
 (defn subscribe
   "Repeatedly fetches messages from SQS queue and invokes handler function for
