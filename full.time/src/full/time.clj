@@ -3,9 +3,10 @@
             [clj-time.core :as tt]
             [clj-time.format :as tf]
             [clj-time.coerce :as tc]
-            [full.core.log :as log])
+            [full.core.log :as log]
+            [clj-time.core :as t])
   (:import (org.joda.time.format DateTimeFormat)
-           (java.util Locale)
+           (java.util Locale GregorianCalendar)
            (org.joda.time.tz FixedDateTimeZone)
            (org.joda.time DateTime)
            (java.io Writer)))
@@ -104,9 +105,10 @@
 
 (defn construct-dt [years months days hours minutes seconds nanoseconds
                     offset-sign offset-hours offset-minutes]
-  (DateTime. (.getTimeInMillis (#'i/construct-calendar years months days
-                                 hours minutes seconds 0
-                                 offset-sign offset-hours offset-minutes))))
+  (DateTime. years months days hours minutes seconds (quot nanoseconds 1000000)
+             (t/time-zone-for-offset (* offset-sign offset-hours)
+                                     offset-minutes)))
+
 (def read-instant-dt
   "To read an instant as an org.joda.time.DateTime, bind *data-readers* to a
 map with this var as the value for the 'inst key."

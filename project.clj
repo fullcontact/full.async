@@ -15,6 +15,7 @@
         "camelsnake"
         "full.time"
         "full.json"
+        "full.edn"
         "full.async"
         "full.metrics"
         "full.cache"

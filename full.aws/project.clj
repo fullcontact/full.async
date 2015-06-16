@@ -18,6 +18,7 @@
                  [fullcontact/full.metrics "0.5.0-SNAPSHOT"]
                  [fullcontact/full.http "0.5.0-SNAPSHOT"]
                  [fullcontact/full.json "0.5.0-SNAPSHOT"]
+                 [fullcontact/full.edn "0.5.0-SNAPSHOT"]
                  [fullcontact/full.async "0.5.0-SNAPSHOT"]
                  [fullcontact/full.core "0.5.0-SNAPSHOT"]]
 

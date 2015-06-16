@@ -4,7 +4,8 @@
             [full.aws.core :as aws]
             [full.async :refer :all]
             [full.http.client :as http]
-            [full.time :refer :all])
+            [full.time :refer :all]
+            [full.edn :refer [read-edn]])
   (:import (com.amazonaws.services.s3 AmazonS3Client)
            (com.amazonaws.services.s3.model GeneratePresignedUrlRequest)
            (java.util Date)
@@ -91,11 +92,6 @@
                       :timeout timeout})
           (<?)
           (response-parser)))))
-
-(defn read-edn [s]
-  (let [opts {:readers (assoc *data-readers* 'inst read-instant-dt)}])
-  (edn/read-string {:readers (assoc *data-readers* 'inst read-instant-dt)}
-                   s))
 
 (defn get-edn>
   [^String bucket-name, ^String key
