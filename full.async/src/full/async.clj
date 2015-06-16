@@ -101,7 +101,7 @@
          (->> (<! head#)
               (conj results#)
               (recur (rest chs#)))
-         (seq results#)))))
+         (vec results#)))))
 
 (defmacro <?*
   "Takes one result from each channel and returns them as a collection.
@@ -115,7 +115,7 @@
          (->> (<? head#)
               (conj results#)
               (recur (rest chs#)))
-         (seq results#)))))
+         (vec results#)))))
 
 (defn <!!*
   [chs]
