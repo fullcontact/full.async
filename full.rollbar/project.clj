@@ -1,4 +1,4 @@
-(defproject fullcontact/full.rollbar "0.4.24-SNAPSHOT"
+(defproject fullcontact/full.rollbar "0.5.0-SNAPSHOT"
   :description "Library to ship exceptions and request information to the rollbar logging service."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -10,10 +10,10 @@
   :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [fullcontact/camelsnake "0.4.24-SNAPSHOT"]
-                 [fullcontact/full.async "0.4.24-SNAPSHOT"]
-                 [fullcontact/full.core "0.4.24-SNAPSHOT"]
-                 [fullcontact/full.http "0.4.24-SNAPSHOT"]]
+                 [fullcontact/camelsnake "0.5.0-SNAPSHOT"]
+                 [fullcontact/full.async "0.5.0-SNAPSHOT"]
+                 [fullcontact/full.core "0.5.0-SNAPSHOT"]
+                 [fullcontact/full.http "0.5.0-SNAPSHOT"]]
   :aot :all
 
   :plugins [[lein-midje "3.1.3"]]
