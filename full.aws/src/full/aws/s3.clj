@@ -12,7 +12,7 @@
            (com.amazonaws HttpMethod)
            (java.io InputStream)))
 
-(def client (delay (doto (AmazonS3Client.)
+(def client (delay (doto (AmazonS3Client. @aws/credentials)
                      (.setRegion @aws/region))))
 
 (defn- expiration-date []
