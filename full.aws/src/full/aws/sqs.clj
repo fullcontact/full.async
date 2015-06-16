@@ -49,8 +49,7 @@
            receive-message-wait-time
            visibility-timeout
            redrive-policy]}]
-  (?assoc
-    {}
+  (?hash-map
     "DelaySeconds" (str-or-nil delay-seconds)
     "MaximumMessageSize" (str-or-nil maximum-message-size)
     "MessageRetentionPeriod" (str-or-nil message-retention-period)
