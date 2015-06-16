@@ -10,7 +10,7 @@
   :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]
 
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [cheshire "5.3.1"]
+                 [cheshire "5.5.0"]
                  [fullcontact/full.time "0.4.24-SNAPSHOT"]
                  [fullcontact/camelsnake "0.4.24-SNAPSHOT"]
                  [fullcontact/full.core "0.4.24-SNAPSHOT"]]

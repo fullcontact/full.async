@@ -11,6 +11,10 @@
 
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [com.amazonaws/aws-java-sdk "1.10.0"]
+                 [com.taoensso/faraday "1.7.1" ; DynamoDB sugar
+                  :exclusions [com.amazonaws/aws-java-sdk-dynamodb joda-time]]
+                 ; include full.time for joda-time dependency
+                 [fullcontact/full.time "0.4.24-SNAPSHOT"]
                  [fullcontact/full.metrics "0.4.24-SNAPSHOT"]
                  [fullcontact/full.http "0.4.24-SNAPSHOT"]
                  [fullcontact/full.json "0.4.24-SNAPSHOT"]
