@@ -215,7 +215,7 @@
                      max-messages 10
                      unserializer read-edn}}]
   {:pre [(and (integer? wait-time) (pos? wait-time) (<= 20 wait-time))
-         (and (integer? max-messages) (pos? max-messages) (<= 10 wait-time))]}
+         (and (integer? max-messages) (pos? max-messages) (<= 10 max-messages))]}
   (let [ch (chan max-messages)]
     (go-loop
       [last-delay 0]
