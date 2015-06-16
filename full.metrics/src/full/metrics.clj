@@ -50,15 +50,26 @@
       (catch Exception e
         (log/error e "error sending events" events)))))
 
-(defmacro track
+(defn- log-event [event]
+  (-> (str "full.metrics." (:service event))
+      (org.slf4j.LoggerFactory/getLogger)
+      (.debug (pr-str event))))
+
+(defn track
   "Send an event over client. Requests acknowledgement from the Riemann
-    server by default. If ack is false, sends in fire-and-forget mode."
-  ([event] `(let [event# (normalize ~event)]
-              (-> (str "full.metrics." (:service event#))
-                  (org.slf4j.LoggerFactory/getLogger)
-                  (.debug (str event#)))
-              (send-event event# (true? @acknowledge-by-default))))
-  ([event ack] `(send-event (normalize ~event) ~ack)))
+   server by default. If ack is false, sends in fire-and-forget mode."
+  ([event] (track event @acknowledge-by-default))
+  ([event ack]
+   (doto (normalize event)
+     (log-event)
+     (send-event (true? ack)))))
+
+(defn track*
+  ([events] (track* events @acknowledge-by-default))
+  ([events ack]
+   (let [events (map normalize events)]
+     (doseq [event events] (log-event event))
+     (send-events events (true? ack)))))
 
 
 ;;; EVENT PUT SUGAR ;;;
