@@ -1,6 +1,7 @@
 (ns full.async
   (:require [clojure.core.async :refer [<! <!! >! alts! go go-loop chan thread]
-             :as async]))
+             :as async])
+  (:import (clojure.core.async.impl.protocols ReadPort)))
 
 (defn throw-if-throwable
   "Helper method that checks if x is Throwable and if yes, wraps it in a new
@@ -133,6 +134,9 @@
   returned channel when the input channel has been completely consumed and all
   objects have been processed."
   [f> parallelism ch]
+  {:pre [(fn? f>)
+         (and (integer? parallelism) (pos? parallelism))
+         (instance? ReadPort ch)]}
   (let [results (async/chan)
         threads (atom parallelism)]
     (dotimes [_ parallelism]
