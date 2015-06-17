@@ -60,7 +60,7 @@
     "RedrivePolicy" (when redrive-policy (write-json redrive-policy))))
 
 (defn create-queue>
-  [queue-name & {:as attributes}]
+  [queue-name attributes]
   (thread-try
     (let [attributes (queue-attributes attributes)]
       (log/info "Creating queue" queue-name "with attributes" attributes)
@@ -77,7 +77,7 @@
          (.deleteQueue @client))))
 
 (defn set-queue-attributes>
-  [queue-url & {:as attributes}]
+  [queue-url attributes]
   (thread-try
     (->> (SetQueueAttributesRequest. queue-url (queue-attributes attributes))
          (.setQueueAttributes @client))))
@@ -169,7 +169,7 @@
       (try-update :approximate-first-receive-timestamp parse-long-ts)))
 
 (defn- parse-message
-  [^Message m queue-url becomes-visible & {:keys [unserializer]}]
+  [^Message m queue-url becomes-visible unserializer]
   {:message-id (.getMessageId m)
    :receipt-handle (.getReceiptHandle m)
    :body (cond-> (.getBody m)
@@ -179,75 +179,72 @@
    :becomes-visible becomes-visible})
 
 (defn send-message>
-  [{:keys [queue-url body] :as message}
-   & {:keys [delay-seconds serializer] :or {serializer write-edn}}]
-  {:pre [(string? queue-url)]}
-  (thread-try
-    (-> (SendMessageRequest. queue-url
-                             (if serializer
-                               (serializer body)
-                               (str body)))
-        (cond-> delay-seconds (.withDelaySeconds (int delay-seconds)))
-        (->> (.sendMessage @client))
-        (.getMessageId))))
+  ([message] (send-message> message {}))
+  ([{:keys [queue-url body] :as message}
+    {:keys [delay-seconds serializer] :or {serializer write-edn}}]
+   {:pre [(string? queue-url)]}
+   (thread-try
+     (-> (SendMessageRequest. queue-url
+                              (if serializer
+                                (serializer body)
+                                (str body)))
+         (cond-> delay-seconds (.withDelaySeconds (int delay-seconds)))
+         (->> (.sendMessage @client))
+         (.getMessageId)))))
 
 (defn- now-plus-seconds [seconds]
   (t/plus (t/now) (t/seconds seconds)))
 
 (defn receive-messages>
-  [queue-url & {:keys [wait-time
-                       max-messages
-                       visibility-timeout
-                       unserializer]
-                :or {visibility-timeout 30
-                     unserializer read-edn}}]
-  {:pre [(and (integer? visibility-timeout)
-              (pos? visibility-timeout)
-              (>= 43200 visibility-timeout))]}
-  (thread-try
-    (let [becomes-visible (now-plus-seconds visibility-timeout)]
-      (-> (ReceiveMessageRequest. queue-url)
-          (.withAttributeNames ["All"])
-          (cond-> wait-time (.withWaitTimeSeconds (int wait-time))
-                  max-messages (.withMaxNumberOfMessages (int max-messages))
-                  visibility-timeout (.withVisibilityTimeout (int visibility-timeout)))
-          (->> (.receiveMessage @client)
-               (.getMessages)
-               (map #(parse-message % queue-url becomes-visible
-                                    :unserializer unserializer)))))))
+  ([queue-url] (receive-messages> queue-url {}))
+  ([queue-url {:keys [wait-time max-messages visibility-timeout unserializer]
+               :or {visibility-timeout 30, unserializer read-edn}}]
+   {:pre [(and (integer? visibility-timeout)
+               (pos? visibility-timeout)
+               (>= 43200 visibility-timeout))]}
+   (thread-try
+     (let [becomes-visible (now-plus-seconds visibility-timeout)]
+       (-> (ReceiveMessageRequest. queue-url)
+           (.withAttributeNames ["All"])
+           (cond-> wait-time (.withWaitTimeSeconds (int wait-time))
+                   max-messages (.withMaxNumberOfMessages (int max-messages))
+                   visibility-timeout (.withVisibilityTimeout (int visibility-timeout)))
+           (->> (.receiveMessage @client)
+                (.getMessages)
+                (map #(parse-message %
+                                     queue-url
+                                     becomes-visible
+                                     unserializer))))))))
 
 
 (defn receive-messages>>
   "Continously receive messages from AWS with long-polling. Returns an inifinite
    channel that will yield the received messages."
-  [queue-url & {:keys [wait-time
-                       max-messages
-                       visibility-timeout
-                       unserializer]
-                :or {wait-time 20
-                     max-messages 10
-                     unserializer read-edn}}]
-  {:pre [(and (integer? wait-time) (pos? wait-time) (>= 20 wait-time))
-         (and (integer? max-messages) (pos? max-messages) (>= 10 max-messages))]}
-  (let [ch (chan max-messages)]
-    (go-loop
-      [last-delay 0]
-      (let [messages (<! (receive-messages> queue-url
-                                            :wait-time wait-time
-                                            :max-messages max-messages
-                                            :visibility-timeout visibility-timeout
-                                            :unserializer unserializer))]
-        (if (instance? Exception messages)
-          ; progressively increase delay starting from 5 seconds
-          (let [delay (if (pos? last-delay) (* 2 last-delay) 5)]
-            (log/error (str "Error receiveing SQS messages " messages
-                            ", will retry in " delay "sec"))
-            (<! (timeout (* 1000 delay)))
-            (recur delay))
-          (do
-            (<! (onto-chan ch messages false))
-            (recur 0)))))
-    ch))
+  ([queue-url] (receive-messages>> queue-url {}))
+  ([queue-url {:keys [wait-time max-messages visibility-timeout unserializer]
+               :or {wait-time 20, max-messages 10, unserializer read-edn}
+               :as attrs}]
+   {:pre [(and (integer? wait-time)
+               (pos? wait-time)
+               (>= 20 wait-time))
+          (and (integer? max-messages)
+               (pos? max-messages)
+               (>= 10 max-messages))]}
+   (let [ch (chan max-messages)]
+     (go-loop
+       [last-delay 0]
+       (let [messages (<! (receive-messages> queue-url attrs))]
+         (if (instance? Exception messages)
+           ; progressively increase delay starting from 5 seconds
+           (let [delay (if (pos? last-delay) (* 2 last-delay) 5)]
+             (log/error (str "Error receiveing SQS messages " messages
+                             ", will retry in " delay "sec"))
+             (<! (timeout (* 1000 delay)))
+             (recur delay))
+           (do
+             (<! (onto-chan ch messages false))
+             (recur 0)))))
+     ch)))
 
 (defn delete-message>
   [{:keys [queue-url receipt-handle] :as message}]
@@ -274,8 +271,7 @@
   [message retries]
   (go
     (if retries
-      (let [receive-count (:approximate-receive-count
-                            (:attributes message))
+      (let [receive-count (:approximate-receive-count (:attributes message))
             delay (or (get retries (dec receive-count))
                       (last retries))
             ; distribute the messages over a time period
@@ -328,25 +324,27 @@
                                 is automatically extended to allow additional
                                 processing time. Should be less than
                                 :visibility-timeout. Set to nil to disable."
-  [queue-url handler> & {:keys [visibility-timeout extend-visibility-after
-                                unserializer parallelism retries]
-                         :or {visibility-timeout 30
-                              extend-visibility-after 20
-                              unserializer read-edn
-                              parallelism 1
-                              retries [5 60 900 3600]}}]
-  {:pre [(pos? parallelism)
-         (or (nil? extend-visibility-after)
-             (and (pos? extend-visibility-after)
-                  (pos? visibility-timeout)
-                  (> visibility-timeout extend-visibility-after)))]}
-  (->> (receive-messages>> queue-url
-                           :max-messages parallelism
-                           :visibility-timeout visibility-timeout
-                           :unserializer unserializer)
-       (pmap>> #(handle-message> {:message %
-                                  :handler> handler>
-                                  :visibility-timeout visibility-timeout
-                                  :extend-visibility-after extend-visibility-after
-                                  :retries retries}) parallelism)
-       (engulf)))
+  ([queue-url handler>] (subscribe queue-url handler> {}))
+  ([queue-url handler> {:keys [visibility-timeout extend-visibility-after
+                               unserializer parallelism retries]
+                        :or {visibility-timeout 30
+                             extend-visibility-after 20
+                             unserializer read-edn
+                             parallelism 1
+                             retries [5 60 900 3600]}
+                        :as attrs}]
+   {:pre [(pos? parallelism)
+          (or (nil? extend-visibility-after)
+              (and (pos? extend-visibility-after)
+                   (pos? visibility-timeout)
+                   (> visibility-timeout extend-visibility-after)))]}
+   (->> (receive-messages>> queue-url {:max-messages parallelism
+                                       :visibility-timeout visibility-timeout
+                                       :unserializer unserializer})
+        (pmap>> #(handle-message> {:message %
+                                   :handler> handler>
+                                   :visibility-timeout visibility-timeout
+                                   :extend-visibility-after extend-visibility-after
+                                   :retries retries})
+                parallelism)
+        (engulf))))
