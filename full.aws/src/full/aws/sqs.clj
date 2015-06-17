@@ -231,10 +231,11 @@
                                                   queue-url
                                                   becomes-visible
                                                   unserializer))))]
-       (log/error "RECEIVED" (count messages)
-                  "IN" (ellapsed-time start)
-                  "WAIT" wait-time
-                  "QUEUE" queue-url)
+       (log/debug "Received"
+                  (count messages)
+                  "in" (str (ellapsed-time start) "ms")
+                  "from" queue-url
+                  (str "(wait time " wait-time ")"))
        messages))))
 
 (defn receive-messages>>
