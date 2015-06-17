@@ -285,7 +285,7 @@
 
 (defn- handle-message>
   [{:keys [message handler> visibility-timeout extend-visibility-after
-           retries]}]
+           retries auto-delete]}]
   (go
     (try
       (let [handler-ch (handler> message)]
@@ -299,11 +299,15 @@
                            (str "(#" (inc extension) ")"))
                 (recur (<! (change-message-visibility> message visibility-timeout))
                        (inc extension)))))
-          (<? handler-ch)))
+          (<? handler-ch))
+        (when auto-delete
+          (let [res (<! (delete-message> message))]
+            (when (instance? Throwable res)
+              (log/error "Error deleting message" message res)))))
       (catch Throwable ex
-        (let [message (<! (retry-message> message retries))]
+        (let [res (<! (retry-message> message retries))]
           (log/error (str "Error processing message " message ": " ex
-                          ", " message)))))))
+                          ", " res)))))))
 
 (defn subscribe
   "Repeatedly fetches messages from SQS queue and invokes handler function for
@@ -323,28 +327,32 @@
    * :extend-visibility-after   Number of seconds after which visibility timeout
                                 is automatically extended to allow additional
                                 processing time. Should be less than
-                                :visibility-timeout. Set to nil to disable."
+                                :visibility-timeout. Set to nil to disable.
+   * :auto-delete  Whether to automatically delete successfully handled
+                   messages. Default is true"
   ([queue-url handler>] (subscribe queue-url handler> {}))
   ([queue-url handler> {:keys [visibility-timeout extend-visibility-after
-                               unserializer parallelism retries]
+                               unserializer parallelism retries auto-delete]
                         :or {visibility-timeout 30
                              extend-visibility-after 20
                              unserializer read-edn
                              parallelism 1
-                             retries [5 60 900 3600]}
+                             retries [5 60 900 3600]
+                             auto-delete true}
                         :as attrs}]
    {:pre [(pos? parallelism)
           (or (nil? extend-visibility-after)
               (and (pos? extend-visibility-after)
                    (pos? visibility-timeout)
                    (> visibility-timeout extend-visibility-after)))]}
-   (->> (receive-messages>> queue-url {:max-messages parallelism
+   (->> (receive-messages>> queue-url {:max-messages (min 10 parallelism)
                                        :visibility-timeout visibility-timeout
                                        :unserializer unserializer})
         (pmap>> #(handle-message> {:message %
                                    :handler> handler>
                                    :visibility-timeout visibility-timeout
                                    :extend-visibility-after extend-visibility-after
-                                   :retries retries})
+                                   :retries retries
+                                   :auto-delete auto-delete})
                 parallelism)
         (engulf))))
