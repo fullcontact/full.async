@@ -11,7 +11,8 @@
             [full.aws.core :as aws]
             [full.metrics :as metrics]
             [camelsnake.core :refer :all]
-            [full.time :refer :all])
+            [full.time :refer :all]
+            [clj-time.core :as t])
   (:import (com.amazonaws.services.sqs AmazonSQSAsyncClient)
            (com.amazonaws.services.sqs.buffered AmazonSQSBufferedAsyncClient)
            (com.amazonaws.services.sqs.model SendMessageRequest
@@ -167,13 +168,15 @@
       (try-update :sent-timestamp parse-long-ts)
       (try-update :approximate-first-receive-timestamp parse-long-ts)))
 
-(defn- parse-message [^Message m queue-url & {:keys [unserializer]}]
+(defn- parse-message
+  [^Message m queue-url becomes-visible & {:keys [unserializer]}]
   {:message-id (.getMessageId m)
    :receipt-handle (.getReceiptHandle m)
    :body (cond-> (.getBody m)
                  unserializer (unserializer))
    :attributes (parse-message-attributes (.getAttributes m))
-   :queue-url queue-url})
+   :queue-url queue-url
+   :becomes-visible becomes-visible})
 
 (defn send-message>
   [{:keys [queue-url body] :as message}
@@ -188,21 +191,31 @@
         (->> (.sendMessage @client))
         (.getMessageId))))
 
+(defn- now-plus-seconds [seconds]
+  (t/plus (t/now) (t/seconds seconds)))
+
 (defn receive-messages>
   [queue-url & {:keys [wait-time
                        max-messages
                        visibility-timeout
                        unserializer]
-                :or {unserializer read-edn}}]
+                :or {visibility-timeout 30
+                     unserializer read-edn}}]
+  {:pre [(and (integer? visibility-timeout)
+              (pos? visibility-timeout)
+              (>= 43200 visibility-timeout))]}
   (thread-try
-    (-> (ReceiveMessageRequest. queue-url)
-        (.withAttributeNames ["All"])
-        (cond-> wait-time (.withWaitTimeSeconds (int wait-time))
-                max-messages (.withMaxNumberOfMessages (int max-messages))
-                visibility-timeout (.withVisibilityTimeout (int visibility-timeout)))
-        (->> (.receiveMessage @client)
-             (.getMessages)
-             (map #(parse-message % queue-url :unserializer unserializer))))))
+    (let [becomes-visible (now-plus-seconds visibility-timeout)]
+      (-> (ReceiveMessageRequest. queue-url)
+          (.withAttributeNames ["All"])
+          (cond-> wait-time (.withWaitTimeSeconds (int wait-time))
+                  max-messages (.withMaxNumberOfMessages (int max-messages))
+                  visibility-timeout (.withVisibilityTimeout (int visibility-timeout)))
+          (->> (.receiveMessage @client)
+               (.getMessages)
+               (map #(parse-message % queue-url becomes-visible
+                                    :unserializer unserializer)))))))
+
 
 (defn receive-messages>>
   "Continously receive messages from AWS with long-polling. Returns an inifinite
@@ -214,8 +227,8 @@
                 :or {wait-time 20
                      max-messages 10
                      unserializer read-edn}}]
-  {:pre [(and (integer? wait-time) (pos? wait-time) (<= 20 wait-time))
-         (and (integer? max-messages) (pos? max-messages) (<= 10 max-messages))]}
+  {:pre [(and (integer? wait-time) (pos? wait-time) (>= 20 wait-time))
+         (and (integer? max-messages) (pos? max-messages) (>= 10 max-messages))]}
   (let [ch (chan max-messages)]
     (go-loop
       [last-delay 0]
@@ -254,7 +267,8 @@
     (->> (ChangeMessageVisibilityRequest. queue-url
                                           receipt-handle
                                           (int visibility-timeout))
-         (.changeMessageVisibility @client))))
+         (.changeMessageVisibility @client))
+    (assoc message :becomes-visible (now-plus-seconds visibility-timeout))))
 
 (defn- retry-message>
   [message retries]
@@ -298,7 +312,8 @@
                    4 +-2 sec, second and following times after 10 +-5 sec."
   [queue-url handler> & {:keys [visibility-timeout unserializer
                                 parallelism retries]
-                         :or {unserializer read-edn
+                         :or {visibility-timeout 30
+                              unserializer read-edn
                               parallelism 1
                               retries [5 60 900 3600]}}]
   {:pre [(pos? parallelism)]}
