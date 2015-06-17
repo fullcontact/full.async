@@ -6,7 +6,7 @@
             [full.core.log :as log]
             [full.core.config :refer [defoptconfig]]
             [riemann.client :as rmn]
-            [full.async :refer [go-try]])
+            [full.async :refer [go-try thread-try]])
   (:refer-clojure :exclude [send]))
 
 
@@ -117,6 +117,10 @@
 (defmacro go-try-timeit
   [event & body]
   `(go-try (timeit ~event ~@body)))
+
+(defmacro thread-try-timeit
+  [event & body]
+  `(thread-try (timeit ~event ~@body)))
 
 (defn increment
   [event]
