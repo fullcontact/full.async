@@ -29,7 +29,8 @@
   "Same as core.async alts! but throws an exception if the channel returns a
   throwable object."
   [ports]
-  `(throw-if-throwable (alts! ~ports)))
+  `(let [[val# port#] (alts! ~ports)]
+     [(throw-if-throwable val#) port#]))
 
 (defmacro go-try
   "Asynchronously executes the body in a go block. Returns a channel which

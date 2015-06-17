@@ -1,6 +1,6 @@
 (ns full.aws.sqs
   (:require [clojure.core.async :refer [go go-loop <! >! chan timeout
-                                        onto-chan]]
+                                        onto-chan alts!]]
             [clojure.string :as strs]
             [full.core.config :refer [defconfig defoptconfig]]
             [full.async :refer :all]
@@ -288,10 +288,22 @@
       "not retrying")))
 
 (defn- handle-message>
-  [message handler> retries]
+  [{:keys [message handler> visibility-timeout extend-visibility-after
+           retries]}]
   (go
     (try
-      (<? (handler> message))
+      (let [handler-ch (handler> message)]
+        (if extend-visibility-after
+          (loop [message message
+                 extension 0]
+            (let [timeout-ch (timeout (* 1000 extend-visibility-after))
+                  [_ port] (alts? [handler-ch timeout-ch])]
+              (when (= port timeout-ch)
+                (log/debug "Extending visibility for message" message
+                           (str "(#" (inc extension) ")"))
+                (recur (<! (change-message-visibility> message visibility-timeout))
+                       (inc extension)))))
+          (<? handler-ch)))
       (catch Throwable ex
         (let [message (<! (retry-message> message retries))]
           (log/error (str "Error processing message " message ": " ex
@@ -306,19 +318,35 @@
    * handle>    handler function, should accept one parameter (message) and return
                 channel that gets closed when message is processed. If channel
                 yields exception, the message will be retried after a delay
-   * :parallelism  Max number of messages to handle in parallel. Default 1.
+   * :parallelism  Max number of messages to handle in parallel. Default 10.
    * :retries      Vector of retry intervals in seconds, for example [4 10] will
                    mean that first time the message will be retry after
-                   4 +-2 sec, second and following times after 10 +-5 sec."
-  [queue-url handler> & {:keys [visibility-timeout unserializer
-                                parallelism retries]
+                   4 +-2 sec, second and following times after 10 +-5 sec.
+   * :visibility-timeout        Number of seconds message is not visible to
+                                other consumers once received.
+   * :extend-visibility-after   Number of seconds after which visibility timeout
+                                is automatically extended to allow additional
+                                processing time. Should be less than
+                                :visibility-timeout. Set to nil to disable."
+  [queue-url handler> & {:keys [visibility-timeout extend-visibility-after
+                                unserializer parallelism retries]
                          :or {visibility-timeout 30
+                              extend-visibility-after 20
                               unserializer read-edn
                               parallelism 1
                               retries [5 60 900 3600]}}]
-  {:pre [(pos? parallelism)]}
+  {:pre [(pos? parallelism)
+         (or (nil? extend-visibility-after)
+             (and (pos? extend-visibility-after)
+                  (pos? visibility-timeout)
+                  (> visibility-timeout extend-visibility-after)))]}
   (->> (receive-messages>> queue-url
+                           :max-messages parallelism
                            :visibility-timeout visibility-timeout
                            :unserializer unserializer)
-       (pmap>> #(handle-message> % handler> retries) parallelism)
+       (pmap>> #(handle-message> {:message %
+                                  :handler> handler>
+                                  :visibility-timeout visibility-timeout
+                                  :extend-visibility-after extend-visibility-after
+                                  :retries retries}) parallelism)
        (engulf)))
