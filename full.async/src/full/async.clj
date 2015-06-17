@@ -29,7 +29,8 @@
   "Same as core.async alts! but throws an exception if the channel returns a
   throwable object."
   [ports]
-  `(throw-if-throwable (alts! ~ports)))
+  `(let [[val# port#] (alts! ~ports)]
+     [(throw-if-throwable val#) port#]))
 
 (defmacro go-try
   "Asynchronously executes the body in a go block. Returns a channel which
@@ -149,6 +150,13 @@
         (when (zero? (swap! threads dec))
           (async/close! results))))
     results))
+
+(defn engulf
+  "Similiar to dorun. Simply takes messages from channel but does nothing with
+  them. Returns channel that will close when all messages have been consumed."
+  [ch]
+  (go-loop []
+    (when (<! ch) (recur))))
 
 (defn reduce>
   "Performs a reduce on objects from ch with the function f> (which should return
