@@ -9,7 +9,7 @@
             [full.edn :refer [read-edn write-edn]]
             [full.json :refer [read-json write-json]]
             [full.aws.core :as aws]
-            [full.metrics :as metrics]
+            [full.metrics :refer [thread-try-timeit] :as metrics]
             [camelsnake.core :refer :all]
             [full.time :refer :all]
             [clj-time.core :as t])
@@ -183,7 +183,8 @@
   ([{:keys [queue-url body] :as message}
     {:keys [delay-seconds serializer] :or {serializer write-edn}}]
    {:pre [(string? queue-url)]}
-   (thread-try
+   (thread-try-timeit
+     "sqs.send"
      (-> (SendMessageRequest. queue-url
                               (if serializer
                                 (serializer body)
@@ -202,7 +203,8 @@
    {:pre [(and (integer? visibility-timeout)
                (pos? visibility-timeout)
                (>= 43200 visibility-timeout))]}
-   (thread-try
+   (thread-try-timeit
+     "sqs.receive"
      (let [becomes-visible (now-plus-seconds visibility-timeout)]
        (-> (ReceiveMessageRequest. queue-url)
            (.withAttributeNames ["All"])
@@ -215,7 +217,6 @@
                                      queue-url
                                      becomes-visible
                                      unserializer))))))))
-
 
 (defn receive-messages>>
   "Continously receive messages from AWS with long-polling. Returns an inifinite
@@ -250,7 +251,8 @@
   [{:keys [queue-url receipt-handle] :as message}]
   {:pre [(string? queue-url)
          (string? receipt-handle)]}
-  (thread-try
+  (thread-try-timeit
+    "sqs.delete"
     (->> (DeleteMessageRequest. queue-url receipt-handle)
          (.deleteMessage @client))))
 
@@ -260,7 +262,8 @@
   {:pre [(string? queue-url)
          (string? receipt-handle)
          (integer? visibility-timeout)]}
-  (thread-try
+  (thread-try-timeit
+    "sqs.change-vis"
     (->> (ChangeMessageVisibilityRequest. queue-url
                                           receipt-handle
                                           (int visibility-timeout))
