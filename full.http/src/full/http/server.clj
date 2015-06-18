@@ -8,6 +8,7 @@
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.middleware.nested-params :refer [wrap-nested-params]]
             [ring.middleware.params :refer [wrap-params]]
+            [ring.middleware.resource :refer [resource-request]]
             [org.httpkit.server :as httpkit]
             [full.core.sugar :refer :all]
             [full.core.log :as log]
@@ -175,6 +176,13 @@
                         :state (get metric-states severity)})
         res))))
 
+(defn wrap-resource>
+  [handler root-path]
+  (fn [req]
+    (go-try
+      (or (resource-request req root-path)
+          (<? (handler req))))))
+
 (defn- send-async
   "Private middleware that sends the response asynchronously via http-kit's
   async support. Must be the last item in middleware stack."
@@ -212,7 +220,6 @@
         (let [res (-> req (assoc :request-method :get) (handler>) (<?))]
           (assoc res :body nil)))
       (handler> req))))
-
 
 ;;; MIDLEWARE GLUE
 
