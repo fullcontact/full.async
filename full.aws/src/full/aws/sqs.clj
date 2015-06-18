@@ -34,11 +34,9 @@
 (def max-visibility-timeout 43200)
 
 
-(def client (delay (do (log/info "Connecting to SQS, access key ID:"
-                                 (.getAWSAccessKeyId @aws/credentials))
-                       (-> @aws/credentials
-                           (AmazonSQSAsyncClient.)
-                           (AmazonSQSBufferedAsyncClient.)))))
+(def client (delay (-> @aws/credentials-provider
+                       (AmazonSQSAsyncClient.)
+                       (AmazonSQSBufferedAsyncClient.))))
 
 
 ;;; QUEUES
