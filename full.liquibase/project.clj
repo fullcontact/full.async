@@ -11,7 +11,7 @@
 
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/java.jdbc "0.3.6"]
-                 [org.liquibase/liquibase-core "3.3.3"]
+                 [org.liquibase/liquibase-core "3.3.5"]
                  [com.mattbertolini/liquibase-slf4j "1.2.1"]
                  [fullcontact/full.core "0.5.2-SNAPSHOT"]]
 
