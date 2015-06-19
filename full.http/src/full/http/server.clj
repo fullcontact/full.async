@@ -9,6 +9,7 @@
             [ring.middleware.nested-params :refer [wrap-nested-params]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.resource :refer [resource-request]]
+            [ring.middleware.content-type :refer [content-type-response]]
             [org.httpkit.server :as httpkit]
             [full.core.sugar :refer :all]
             [full.core.log :as log]
@@ -177,11 +178,33 @@
         res))))
 
 (defn wrap-resource>
-  [handler root-path]
+  [handler> root-path]
   (fn [req]
     (go-try
       (or (resource-request req root-path)
-          (<? (handler req))))))
+          (<? (handler> req))))))
+
+(defn wrap-content-type>
+  "Middleware that adds a content-type header to the response if one is not
+  set by the handler. Uses the ring.util.mime-type/ext-mime-type function to
+  guess the content-type from the file extension in the URI. If no
+  content-type can be found, it defaults to 'application/octet-stream'.
+
+  Accepts the following options:
+
+  :mime-types - a map of filename extensions to mime-types that will be
+                used in addition to the ones defined in
+                ring.util.mime-types/default-mime-types
+
+  This is async version of wrap-content-type from ring.middleware.content-type:
+  https://github.com/mmcgrana/ring/blob/master/ring-core/src/ring/middleware/content_type.clj
+  Copyright (c) 2009-2010 Mark McGranaghan"
+  {:arglists '([handler] [handler options])}
+  [handler> & [opts]]
+  (fn [req]
+    (go-try
+      (if-let [resp (<? (handler> req))]
+        (content-type-response resp req opts)))))
 
 (defn- send-async
   "Private middleware that sends the response asynchronously via http-kit's
