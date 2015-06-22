@@ -1,5 +1,6 @@
 (ns full.time
   (:require [clojure.instant :as i]
+            [clojure.string :as strs]
             [clj-time.core :as tt]
             [clj-time.format :as tf]
             [clj-time.coerce :as tc]
@@ -90,6 +91,48 @@
 
 (defn dt-between [dt from to]
   (tt/within? (tt/interval from to) dt))
+
+
+;;; RELATIVE DATE FORMATTING
+
+
+(def ms-second 1000)
+(def ms-minute (* ms-second 60))
+(def ms-hour (* ms-minute 60))
+(def ms-day (* ms-hour 24))
+(def ms-week (* ms-day 7))
+(def ms-year (* (quot ms-day 1000) 365242))  ; 365.242 days in year
+(def ms-month (quot ms-year 12))
+
+(def period-types [[ms-year Long/MAX_VALUE "y"]
+                   [ms-month ms-year "m"]
+                   [ms-week ms-month "w"]
+                   [ms-day ms-week "d"]
+                   [ms-hour ms-day "h"]
+                   [ms-minute ms-hour "m"]])
+
+(defn dt->rel
+  [dt]
+  (let [now-ms (.getMillis (now-utc))
+        ms (.getMillis dt)
+        delta (- ms now-ms)
+        ago (neg? delta)
+        delta (Math/abs (long delta))
+        period (->> period-types
+                    (map (fn [[ms m name]] [(quot (mod delta m) ms) name]))
+                    ; find first non-zero period
+                    (drop-while (comp zero? first))
+                    (take-while (comp pos? first))
+                    ; max 2 periods
+                    (take 2)
+                    (map (partial apply str))
+                    (strs/join " "))
+        period (if (zero? (.length period))
+                 "few seconds"
+                 period)]
+    (if ago
+      (str period " ago")
+      (str "in " period))))
 
 
 ;;; (DE)SERIALZIATION
