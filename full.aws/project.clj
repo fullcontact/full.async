@@ -1,4 +1,4 @@
-(defproject fullcontact/full.aws "0.5.5"
+(defproject fullcontact/full.aws "0.5.6-SNAPSHOT"
   :description "Async Amazon Webservices client."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -14,13 +14,13 @@
                  [com.taoensso/faraday "1.7.1" ; DynamoDB sugar
                   :exclusions [com.amazonaws/aws-java-sdk-dynamodb joda-time]]
                  ; include full.time for joda-time dependency
-                 [fullcontact/full.time "0.5.5"]
-                 [fullcontact/full.metrics "0.5.5"]
-                 [fullcontact/full.http "0.5.5"]
-                 [fullcontact/full.json "0.5.5"]
-                 [fullcontact/full.edn "0.5.5"]
-                 [fullcontact/full.async "0.5.5"]
-                 [fullcontact/full.core "0.5.5"]]
+                 [fullcontact/full.time "0.5.6-SNAPSHOT"]
+                 [fullcontact/full.metrics "0.5.6-SNAPSHOT"]
+                 [fullcontact/full.http "0.5.6-SNAPSHOT"]
+                 [fullcontact/full.json "0.5.6-SNAPSHOT"]
+                 [fullcontact/full.edn "0.5.6-SNAPSHOT"]
+                 [fullcontact/full.async "0.5.6-SNAPSHOT"]
+                 [fullcontact/full.core "0.5.6-SNAPSHOT"]]
 
   :aot :all
 
