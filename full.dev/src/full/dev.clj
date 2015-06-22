@@ -40,23 +40,30 @@
 
 ;;; Dynamic code reloading
 
-(defn- check-namespace-changes [track]
-  (doseq [ns-sym (track)]
-    (try
-      (log/info "Reloading namespace:" ns-sym)
-      (require ns-sym :reload)
-      (catch Throwable e
-        (log/error (log/error "Error reloading namespace" ns-sym e)))))
+(defn- check-namespace-changes [track on-reload]
+  (some->> (track)
+           (map (fn [ns-sym]
+                  (try
+                    (log/info "Reloading namespace:" ns-sym)
+                    (require ns-sym :reload)
+                    ns-sym
+                    (catch Throwable e
+                      (log/error "Error reloading namespace" ns-sym e)))))
+           (filter identity)
+           (doall)
+           (not-empty)
+           (on-reload))
   (Thread/sleep 500))
 
 (defn start-nstracker
   "Automatically tracks source code changes in src and checkouts folder
   and reloads the changed namespaces."
-  []
-  (let [track (tracker/ns-tracker ["src" "checkouts"])]
+  [& {:keys [directories on-reload]
+      :or {directories ["src" "checkouts"], on-reload (fn [_])}}]
+  (let [track (tracker/ns-tracker directories)]
     (doto
       (Thread.
         #(while true
-          (check-namespace-changes track)))
+          (check-namespace-changes track on-reload)))
       (.setDaemon true)
       (.start))))
