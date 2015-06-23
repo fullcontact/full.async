@@ -104,7 +104,7 @@
      (let [res# (try ~@body (catch Throwable t# t#))
            fail# (instance? Throwable res#)]
        (track (assoc event# :metric (ellapsed-time start-time#)
-                            :tags ["timeit"]
+                            :tags (conj (or (:tags event#) []) "timeit")
                             :state (if fail#
                                      "critical"
                                      "ok")
