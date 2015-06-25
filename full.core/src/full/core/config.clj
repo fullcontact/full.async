@@ -57,22 +57,58 @@
   (get-in @_config (into [k] ks)))
 
 (defmacro defconfig
-  "Define required configuration property, for example (defconfig some-prop :some-prop). Defined properties should be
+  "DEPRECATED: Use 'opt' instead.
+  Define required configuration property, for example (defconfig some-prop :some-prop). Defined properties should be
   dereferenced with @ when used, for example @some-prop. When property is not configured, dereferencing it will throw
   an exception."
+  {:deprecated "0.5.7"}
   [name & ks]
   `(def ~name (delay (get-config @_config ~@ks))))
 
 (defmacro defoptconfig
-  "Define optional configuration property, for example (defoptconfig some-prop :some-prop). Defined properties should be
+  "DEPRECATED: Use 'opt' instead.
+  Define optional configuration property, for example (defoptconfig some-prop :some-prop). Defined properties should be
   dereferenced with @ when used, for example @some-prop. When property is not configured, will return nil."
+  {:deprecated "0.5.7"}
   [name & ks]
   `(def ~name (delay (config? ~@ks))))
 
 (defmacro defmappedconfig
-  "Define a configuration property, for example (defmappedconfig some-prop f :some-prop).
-   On creation will be passed as an argument to f, (for example, to create a set).
-   Defined properties should be dereferenced with @ when used, for example @some-prop.
-   When property is not configured, will return nil."
+  "DEPRECATED: Use 'opt' instead.
+  Define a configuration property, for example (defmappedconfig some-prop f :some-prop).
+  On creation will be passed as an argument to f, (for example, to create a set).
+  Defined properties should be dereferenced with @ when used, for example @some-prop.
+  When property is not configured, will return nil."
+  {:deprecated "0.5.7"}
   [name f & ks]
   `(def ~name (delay (~f (config? ~@ks)))))
+
+::undefined
+
+(defn opt
+  "Yields a lazy configuration value, readable by dereferencing with @. Will
+  throw an exception when no value is present in configuration and no default
+  value is specified.
+
+  Parameters:
+    sel - a keyword or vector of keywords representing path in config file
+    :default - default value. Use `nil` for optional configuration.
+    :mapper -  function to apply to configuration value before returning
+  "
+  [sel & {:keys [default mapper]
+          :or {default ::undefined}}]
+  {:pre [(or (keyword? sel)
+             (and (vector? sel)
+                  (every? keyword sel)))
+         (or (nil? mapper)
+             (fn? mapper))]}
+  (delay
+    (let [value (or (if (vector? sel)
+                      (get-in @_config sel)
+                      (get @_config sel))
+                    default)]
+      (when (= ::undefined value)
+        (throw (RuntimeException. (str "Option " sel " is not configured"))))
+      (if mapper
+        (mapper value)
+        value))))

@@ -3,7 +3,7 @@
             [clojure.core.async :refer [>! <! chan mult tap close!]]
             [taoensso.nippy :as nippy]
             [full.core.log :as log]
-            [full.core.config :refer [defoptconfig]]
+            [full.core.config :refer [opt]]
             [full.async :refer [go-try]])
   (:import (java.util.logging Logger Level)
            (net.jodah.expiringmap ExpiringMap ExpiringMap$ExpirationPolicy)
@@ -13,7 +13,7 @@
   (:refer-clojure :exclude [set, get]))
 
 
-(defoptconfig memcache-address :memcache-address)
+(def memcache-address (opt :memcache-address :default nil))
 
 
 ;;; ASYNC LOADING SUPPORT

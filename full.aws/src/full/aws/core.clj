@@ -1,14 +1,13 @@
 (ns full.aws.core
-  (:require [full.core.config :refer [defconfig defoptconfig]])
+  (:require [full.core.config :refer [opt]])
   (:import (com.amazonaws.regions Region Regions)
            (com.amazonaws.auth AWSCredentialsProvider
                                BasicAWSCredentials
                                DefaultAWSCredentialsProviderChain)))
 
-(defconfig region-name :aws :region)
-
-(defoptconfig client-id :aws :client-id)
-(defoptconfig client-secret :aws :client-secret)
+(def region-name   (opt [:aws :region]))
+(def client-id     (opt [:aws :client-id] :default nil))
+(def client-secret (opt [:aws :client-secret] :default nil))
 
 (def region (delay (Region/getRegion (Regions/fromName @region-name))))
 

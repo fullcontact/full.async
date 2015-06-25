@@ -4,7 +4,7 @@
 (ns full.metrics
   (:require [full.core.sugar :refer :all]
             [full.core.log :as log]
-            [full.core.config :refer [defoptconfig]]
+            [full.core.config :refer [opt]]
             [riemann.client :as rmn]
             [full.async :refer [go-try thread-try]])
   (:refer-clojure :exclude [send]))
@@ -13,10 +13,10 @@
 ;;; CONFIG ;;;
 
 
-(defoptconfig riemann-config :riemann)
-(defoptconfig protocol :riemann :protocol)
-(defoptconfig tags :riemann :tags)
-(defoptconfig acknowledge-by-default :riemann :acknowledge-by-default)
+(def riemann-config (opt :riemann :default :nil))
+(def protocol (opt [:riemann :protocol] :default "udp"))
+(def tags (opt [:riemann :tags] :default nil))
+(def acknowledge-by-default (opt [:riemann :acknowledge-by-default] :default false))
 
 (def client (delay (if (= "udp" @protocol)
                      (do

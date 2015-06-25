@@ -8,16 +8,14 @@
             [langohr.conversion :as lconv]
             [full.core.sugar :refer :all]
             [full.core.log :as log]
-            [full.core.config :refer [defconfig]]
+            [full.core.config :refer [opt]]
             [full.json :refer [read-json write-json]]
             [full.metrics :refer [wrap-timeit go-try-timeit track]]
             [full.async :refer [<? go-try alts?]])
   (:import (com.rabbitmq.client QueueingConsumer)
            (com.rabbitmq.client Channel)))
 
-
-(defconfig hosts :rabbit :hosts)
-
+(def hosts (opt [:rabbit :hosts]))
 
 (def conn (delay (let [c (lc/connect {:hosts @hosts})]
                    (log/info "Connected to RabbitMQ servers" @hosts)

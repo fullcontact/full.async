@@ -7,22 +7,21 @@
             [langohr.basic :as lb]
             [full.core.sugar :refer :all]
             [full.core.log :as log]
-            [full.core.config :refer [defconfig]]
+            [full.core.config :refer [opt]]
             [full.metrics :refer [wrap-timeit]]
             [full.rabbit :as rabbit]))
 
-(defconfig in-queue :round-robin :in-queue)
-(defconfig out-queues :round-robin :out-queues)
-(defconfig prefetch :round-robin :prefetch)
-(defconfig workers :round-robin :workers)
 
-(def out (delay (vec @out-queues)))
+(def in-queue   (opt [:round-robin :in-queue]))
+(def out-queues (opt [:round-robin :out-queues] :mapper vec))
+(def prefetch   (opt [:round-robin :prefetch]))
+(def workers    (opt [:round-robin :workers]))
 
 
 (defn on-message
   [publish-ch ch {:keys [delivery-tag headers routing-key]} payload]
   (try
-    (let [out @out
+    (let [out @out-queues
           i (rand-int (count out))
           queue (get out i)]
       (log/debug "Moving message" routing-key "to" queue)

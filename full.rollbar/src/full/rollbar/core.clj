@@ -3,12 +3,12 @@
             [full.async :refer [go-try <?? <?]]
             [full.core.sugar :refer [when->]]
             [camelsnake.core :refer [->snake_case]]
-            [full.core.config :refer [defoptconfig]]
+            [full.core.config :refer [opt]]
             [full.core.log :as log])
   (:import (java.net InetAddress)))
 
-(defoptconfig rollbar-access-token :rollbar :access-token)
-(defoptconfig rollbar-environment :rollbar :environment)
+(def rollbar-access-token (opt [:rollbar :access-token] :default nil))
+(def rollbar-environment (opt [:rollbar :environment] :default nil))
 
 (def enabled? (delay (and (some? @rollbar-access-token) (some? @rollbar-environment))))
 (def host (delay (.getHostAddress (InetAddress/getLocalHost))))

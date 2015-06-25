@@ -4,15 +4,13 @@
             [org.httpkit.client :as httpkit]
             [camelsnake.core :refer [->camelCase ->kebab-case-keyword]]
             [full.core.sugar :refer :all]
-            [full.core.config :refer [defoptconfig]]
+            [full.core.config :refer [opt]]
             [full.core.log :as log]
             [full.async :refer [go-try]]
             [full.json :refer [read-json write-json]]))
 
 
-(defoptconfig http-timeout :http-timeout)
-
-(def default-http-timeout 30)  ; seconds
+(def http-timeout (opt :http-timeout :default 30)) ; seconds
 
 (def connection-error-status 599)
 
@@ -125,7 +123,7 @@
              :headers headers
              :form-params form-params
              :basic-auth basic-auth
-             :timeout (* (or timeout @http-timeout default-http-timeout) 1000)}
+             :timeout (* (or timeout @http-timeout) 1000)}
         full-url (str (upper-case (name method))
                       " " (:url req)
                       (if (not-empty (:query-params req))

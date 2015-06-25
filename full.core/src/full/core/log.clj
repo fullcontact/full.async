@@ -1,10 +1,10 @@
 (ns full.core.log
   (:require [clojure.tools.logging :as log]
             [clojure.java.io :refer [as-file as-url]]
-            [full.core.config :refer [defoptconfig]])
+            [full.core.config :refer [opt]])
   (:import (org.slf4j MDC)))
 
-(defoptconfig log-config :log-config)
+(def log-config (opt :log-config :default "log.xml"))
 
 (def ^:dynamic context "")
 
@@ -78,7 +78,7 @@
 
 (defn configure
   ; TODO - if we make this macro, would it be possible to load this module without the logback dependency?
-  ([] (configure (or @log-config "log.xml")))
+  ([] (configure @log-config))
   ([config-file]
    (let [context (org.slf4j.LoggerFactory/getILoggerFactory)]
      (try

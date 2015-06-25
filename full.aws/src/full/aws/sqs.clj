@@ -2,7 +2,7 @@
   (:require [clojure.core.async :refer [go go-loop <! >! chan timeout
                                         onto-chan alts!]]
             [clojure.string :as strs]
-            [full.core.config :refer [defconfig defoptconfig]]
+            [full.core.config :refer [opt]]
             [full.async :refer :all]
             [full.core.sugar :refer :all]
             [full.core.log :as log]
@@ -22,10 +22,12 @@
                                              CreateQueueRequest
                                              SetQueueAttributesRequest
                                              DeleteQueueRequest
-                                             Message GetQueueAttributesRequest ListQueuesRequest)))
+                                             Message
+                                             GetQueueAttributesRequest
+                                             ListQueuesRequest)))
 
 
-(defoptconfig message-count-fetch-interval :aws :sqs :message-count-fetch-interval)
+(def message-count-fetch-interval (opt [:aws :sqs :message-count-fetch-interval] :default nil))
 
 (def max-wait-time 20)
 (def max-max-messages 10)

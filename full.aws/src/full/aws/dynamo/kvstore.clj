@@ -1,13 +1,13 @@
 (ns full.aws.dynamo.kvstore
   (:require [full.async :refer :all]
-            [full.core.config :refer [defconfig defoptconfig]]
+            [full.core.config :refer [opt]]
             [taoensso.faraday :as far]
             [full.core.log :as log])
   (:import (com.amazonaws.services.dynamodbv2.model ResourceInUseException)))
 
-(defconfig table-name :kvstore :dynamo-table)
-(defoptconfig read-throughput :kvstore :dynamo-throughput :read)
-(defoptconfig write-throughput :kvstore :dynamo-throughput :write)
+(def table-name       (opt [:kvstore :dynamo-table]))
+(def read-throughput  (opt [:kvstore :dynamo-throughput :read] :default 1))
+(def write-throughput (opt [:kvstore :dynamo-throughput :write] :default 1))
 
 (def client-opts (delay
                    (let [opts {}]
@@ -15,8 +15,8 @@
                        (far/create-table
                          opts @table-name
                          [:key :s]
-                         {:throughput {:read (or @read-throughput 1)
-                                       :write (or @write-throughput 1)}
+                         {:throughput {:read @read-throughput
+                                       :write @write-throughput}
                           :block? true})
                        (catch ResourceInUseException _
                          ; table already exists

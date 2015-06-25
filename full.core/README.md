@@ -12,12 +12,7 @@ It contains the following:
 
 ### Config management
 
-With `full.core.config` you can manage yaml configurations for your app. It
-has the following macros:
-
-* `(defconfig var-name & path)` assigns @var-name to value in the path or raises RuntimeException if not found;
-* `(defoptconfig var-name & path)` assigns @var-name to value in the path or nil
-* `(defmappedconfig var-name f & path)` maps value in the path with f and assigns to @var-name
+With `full.core.config` you can manage yaml configurations for your app.
 
 If you have the following config:
 
@@ -31,14 +26,14 @@ parent:
   child: value
 ```
 
-We can use config macros as follows:
+We can use config as follows:
 
 ```clojure
-(defconfig app-name :app)   ; @app-name will be "facebookForCats"
-(defconfig child :parent :child) ; @child will be "value"
-(defmappedconfig hosts set :hosts)  ; @hosts will be #{"host1" "host2" "host3"}
-(defoptconfig space-cakes :space-cakes) ; @space-cakes will be nil
-(defconfig oh-no :this :will :raise)  ; will raise RuntimeException
+(def app-name (opt :app))   ; @app-name will be "facebookForCats"
+(def child (opt [:parent :child])) ; @child will be "value"
+(def hosts (opt :hosts :mapper set))  ; @hosts will be #{"host1" "host2" "host3"}
+(def space-cakes (opt :space-cakes :default nil)) ; @space-cakes will be nil
+(def oh-no (opt [:this :will :raise]))  ; @oh-no will raise RuntimeException
 ```
 
 Path to config file can be set via `-c path/to/file.yaml` or as `FULL_CONFIG`
