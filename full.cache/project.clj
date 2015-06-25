@@ -11,8 +11,8 @@
 
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [net.jodah/expiringmap "0.4.1"]
-                 [net.spy/spymemcached "2.11.7"]
-                 [com.taoensso/nippy "2.6.3"]
+                 [net.spy/spymemcached "2.12.0"]
+                 [com.taoensso/nippy "2.9.0"]
                  [fullcontact/full.core "0.5.7-SNAPSHOT"]
                  [fullcontact/full.async "0.5.7-SNAPSHOT"]]
 
