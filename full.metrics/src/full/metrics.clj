@@ -13,7 +13,7 @@
 ;;; CONFIG ;;;
 
 
-(def riemann-config (opt :riemann :default :nil))
+(def riemann-config (opt :riemann :default nil))
 (def protocol (opt [:riemann :protocol] :default "udp"))
 (def tags (opt [:riemann :tags] :default nil))
 (def acknowledge-by-default (opt [:riemann :acknowledge-by-default] :default false))
