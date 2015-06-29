@@ -68,7 +68,7 @@
    {:keys [opts status headers body error] :as res}]
   (go
     (try
-      (->> (if (or error (> status 299))
+      (->> (if (or error (> status 399))
              (process-error-response full-url status body error)
              (let [res (if response-parser
                          (response-parser res)
@@ -89,13 +89,17 @@
 
 (defn create-json-response-parser
   [json-key-fn]
-  (fn [{:keys [opts status headers body]}]
+  (fn [{:keys [opts status headers body] :as res}]
     (cond
-      (= :head (:method opts)) headers
+      (= :head (:method opts))
+        headers
+      (> status 299)
+        res  ; 30x status - return response as os
       (and (not= status 204)  ; has content
            (.startsWith (:content-type headers "") "application/json"))
-      (or (read-json body :json-key-fn json-key-fn) {})
-      :else (or body ""))))
+        (or (read-json body :json-key-fn json-key-fn) {})
+      :else
+        (or body ""))))
 
 (def raw-json-response-parser
   (create-json-response-parser identity))
@@ -111,10 +115,12 @@
   "Performs asynchronous API request. Always returns result channel which will
   return either response or exception."
   [{:keys [base-url resource url method params body headers basic-auth
-           timeout form-params body-json-key-fn response-parser]
+           timeout form-params body-json-key-fn response-parser
+           follow-redirects?]
     :or {method :get
          body-json-key-fn ->camelCase
-         response-parser kebab-case-json-response-parser}}]
+         response-parser kebab-case-json-response-parser
+         follow-redirects? true}}]
   {:pre [(or url (and base-url resource))]}
   (let [req {:url (or url (str base-url "/" resource))
              :method method
@@ -123,7 +129,8 @@
              :headers headers
              :form-params form-params
              :basic-auth basic-auth
-             :timeout (* (or timeout @http-timeout) 1000)}
+             :timeout (* (or timeout @http-timeout) 1000)
+             :follow-redirects follow-redirects?}
         full-url (str (upper-case (name method))
                       " " (:url req)
                       (if (not-empty (:query-params req))
