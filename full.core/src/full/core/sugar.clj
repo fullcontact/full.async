@@ -71,11 +71,15 @@
     m))
 
 (defn ?update-in
-  "Performs a regular `update-in` if the initial value is not nil."
-  [m k f]
-  (if (get-in m k)
-    (update-in m k f)
-    m))
+  "Performs a regular `update-in` if the original or resulting value is not nil,
+  otherwise dissoc key."
+  [m [k & ks] f & args]
+  (if ks
+    (assoc m k (apply ?update-in (get m k) ks f args))
+    (if-let [newv (when-let [v (get m k)]
+                    (apply f v args))]
+      (assoc m k newv)
+      (dissoc m k))))
 
 (defn move-map-in [m f from to]
   (-> (assoc-in m to (f (get-in m from)))
