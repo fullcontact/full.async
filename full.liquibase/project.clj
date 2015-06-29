@@ -1,4 +1,4 @@
-(defproject fullcontact/full.liquibase "0.5.8-SNAPSHOT"
+(defproject fullcontact/full.liquibase "0.5.8"
   :description "Liquibase database schema creation/upgrading."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -13,7 +13,7 @@
                  [org.clojure/java.jdbc "0.3.6"]
                  [org.liquibase/liquibase-core "3.3.5"]
                  [com.mattbertolini/liquibase-slf4j "1.2.1"]
-                 [fullcontact/full.core "0.5.8-SNAPSHOT"]]
+                 [fullcontact/full.core "0.5.8"]]
 
   :aot :all
 
