@@ -1,4 +1,4 @@
-(defproject fullcontact/full.liquibase "0.5.10-SNAPSHOT"
+(defproject fullcontact/full.liquibase "0.7.0-SNAPSHOT"
   :description "Liquibase database schema creation/upgrading."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -9,11 +9,13 @@
 
   :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]
 
-  :dependencies [[org.clojure/clojure "1.6.0"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/java.jdbc "0.3.6"]
                  [org.liquibase/liquibase-core "3.3.5"]
-                 [com.mattbertolini/liquibase-slf4j "1.2.1"]
-                 [fullcontact/full.core "0.5.10-SNAPSHOT"]]
+                 [com.mattbertolini/liquibase-slf4j "1.2.1"
+                  :exclusions [org.slf4j/slf4j-api
+                               org.yaml/snakeyaml]]
+                 [fullcontact/full.core "0.7.0-SNAPSHOT"]]
 
   :aot :all
 

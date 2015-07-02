@@ -1,4 +1,4 @@
-(defproject fullcontact/full.aws "0.5.10-SNAPSHOT"
+(defproject fullcontact/full.aws "0.7.0-SNAPSHOT"
   :description "Async Amazon Webservices client."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -9,18 +9,18 @@
 
   :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]
 
-  :dependencies [[org.clojure/clojure "1.6.0"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
                  [com.amazonaws/aws-java-sdk "1.10.0"]
                  [com.taoensso/faraday "1.7.1" ; DynamoDB sugar
                   :exclusions [com.amazonaws/aws-java-sdk-dynamodb joda-time]]
                  ; include full.time for joda-time dependency
-                 [fullcontact/full.time "0.5.10-SNAPSHOT"]
-                 [fullcontact/full.metrics "0.5.10-SNAPSHOT"]
-                 [fullcontact/full.http "0.5.10-SNAPSHOT"]
-                 [fullcontact/full.json "0.5.10-SNAPSHOT"]
-                 [fullcontact/full.edn "0.5.10-SNAPSHOT"]
-                 [fullcontact/full.async "0.5.10-SNAPSHOT"]
-                 [fullcontact/full.core "0.5.10-SNAPSHOT"]]
+                 [fullcontact/full.time "0.7.0-SNAPSHOT"]
+                 [fullcontact/full.metrics "0.7.0-SNAPSHOT"]
+                 [fullcontact/full.http "0.7.0-SNAPSHOT"]
+                 [fullcontact/full.json "0.7.0-SNAPSHOT"]
+                 [fullcontact/full.edn "0.7.0-SNAPSHOT"]
+                 [fullcontact/full.async "0.7.0-SNAPSHOT"]
+                 [fullcontact/full.core "0.7.0-SNAPSHOT"]]
 
   :aot :all
 

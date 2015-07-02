@@ -1,4 +1,4 @@
-(defproject fullcontact/full.async "0.5.10-SNAPSHOT"
+(defproject fullcontact/full.async "0.7.0-SNAPSHOT"
   :description "Extensions and helpers for core.async."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -9,7 +9,7 @@
 
   :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]
 
-  :dependencies [[org.clojure/clojure "1.6.0"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]]
 
   :aot :all

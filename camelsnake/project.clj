@@ -1,4 +1,4 @@
-(defproject fullcontact/camelsnake "0.5.10-SNAPSHOT"
+(defproject fullcontact/camelsnake "0.7.0-SNAPSHOT"
   :description "String and keyword transformation between cases."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -11,7 +11,7 @@
 
   :java-source-paths ["src"]
 
-  :dependencies [[org.clojure/clojure "1.6.0"]]
+  :dependencies [[org.clojure/clojure "1.7.0"]]
 
   :aot :all
 

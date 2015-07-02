@@ -1,4 +1,4 @@
-(defproject fullcontact/full.edn "0.5.10-SNAPSHOT"
+(defproject fullcontact/full.edn "0.7.0-SNAPSHOT"
   :description "Sugar for reading and writing EDN."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -9,9 +9,9 @@
 
   :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]
 
-  :dependencies [[org.clojure/clojure "1.6.0"]
-                 [fullcontact/full.time "0.5.10-SNAPSHOT"]                 
-                 [fullcontact/full.core "0.5.10-SNAPSHOT"]]
+  :dependencies [[org.clojure/clojure "1.7.0"]
+                 [fullcontact/full.time "0.7.0-SNAPSHOT"]
+                 [fullcontact/full.core "0.7.0-SNAPSHOT"]]
 
   :aot :all
 

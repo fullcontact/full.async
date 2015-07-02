@@ -1,4 +1,4 @@
-(defproject fullcontact/full.metrics "0.5.10-SNAPSHOT"
+(defproject fullcontact/full.metrics "0.7.0-SNAPSHOT"
   :description "Clojure application metrics sugar for Riemann backend."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -9,14 +9,15 @@
 
   :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]
 
-  :dependencies [[org.clojure/clojure "1.6.0"]
-                 [riemann-clojure-client "0.2.11"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
+                 [riemann-clojure-client "0.2.11" :exclusions [org.clojure/tools.logging
+                                                               org.slf4j/slf4j-api]]
                  [com.climate/clj-newrelic "0.2.1"]
-                 [fullcontact/full.async "0.5.10-SNAPSHOT"]
-                 [fullcontact/full.core "0.5.10-SNAPSHOT"]]
+                 [fullcontact/full.async "0.7.0-SNAPSHOT"]
+                 [fullcontact/full.core "0.7.0-SNAPSHOT"]]
 
   :aot :all
 
   :plugins [[lein-midje "3.1.3"]]
 
-  :profiles {:dev {:dependencies [[midje "1.6.3"]]}})
+  :profiles {:dev {:dependencies [[midje "1.6.3" :exclusions [joda-time]]]}})

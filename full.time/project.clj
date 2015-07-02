@@ -1,4 +1,4 @@
-(defproject fullcontact/full.time "0.5.10-SNAPSHOT"
+(defproject fullcontact/full.time "0.7.0-SNAPSHOT"
   :description "clj-time add-on for simplified ISO-8601 format date/time handling."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -9,9 +9,9 @@
 
   :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]
 
-  :dependencies [[org.clojure/clojure "1.6.0"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
                  [clj-time "0.8.0"]
-                 [fullcontact/full.core "0.5.10-SNAPSHOT"]]
+                 [fullcontact/full.core "0.7.0-SNAPSHOT"]]
 
   :aot :all
 
