@@ -105,11 +105,11 @@
 (def ms-month (quot ms-year 12))
 
 (def period-types [[ms-year Long/MAX_VALUE "y"]
-                   [ms-month ms-year "m"]
+                   [ms-month ms-year "mo"]
                    [ms-week ms-month "w"]
                    [ms-day ms-week "d"]
                    [ms-hour ms-day "h"]
-                   [ms-minute ms-hour "m"]])
+                   [ms-minute ms-hour "mi"]])
 
 (defn dt->rel
   [dt]
