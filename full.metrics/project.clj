@@ -20,4 +20,4 @@
 
   :plugins [[lein-midje "3.1.3"]]
 
-  :profiles {:dev {:dependencies [[midje "1.6.3" :exclusions [joda-time]]]}})
+  :profiles {:dev {:dependencies [[midje "1.6.3"]]}})
