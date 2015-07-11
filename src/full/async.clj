@@ -1,5 +1,5 @@
 (ns full.async
-  (:require [clojure.core.async :refer [<! <!! >! alts! go go-loop chan] :as async]))
+  (:require [clojure.core.async :refer [<! <!! >! alts! alt! go go-loop chan] :as async]))
 
 
 (defn throw-if-throwable
@@ -30,6 +30,12 @@
   throwable object."
   [ports]
   `(throw-if-throwable (alts! ~ports)))
+
+(defmacro alt?
+  "Same as core.async alt! but throws an exception if the channel returns a
+  throwable object."
+  [& clauses]
+  `(throw-if-throwable (alt! ~@clauses)))
 
 (defmacro go-try
   "Asynchronously executes the body in a go block. Returns a channel which
@@ -215,7 +221,8 @@
   nested coll-exprs can refer to bindings created in prior
   binding-forms.  Supported modifiers are: :let [binding-form expr
   ...],
-   :while test, :when test.
+   :while test, :when test. If a top-level entry is nil, it is skipped
+  as it cannot be put on channel.
 
   (<! (async/into [] (go-for [x (range 10) :let [y (<! (go 4))] :while (< x y)] [x y])))"
   {:added "1.0"}
@@ -248,8 +255,9 @@
                                         (if fs#
                                           (concat fs# (<? (~giter (rest ~gxs))))
                                           (recur (rest ~gxs))))
-                                     :else `(do (>! ~res-ch ~body-expr)
-                                                (<? (~giter (rest ~gxs))))
+                                     :else `(let [res# ~body-expr]
+                                              (when res# (>! ~res-ch res#))
+                                              (<? (~giter (rest ~gxs))))
                                      #_`(cons ~body-expr (<? (~giter (rest ~gxs))))))]
                       `(fn ~giter [~gxs]
                          (go-try

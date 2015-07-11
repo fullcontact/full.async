@@ -1,7 +1,7 @@
 (ns full.t-async
   (:require [midje.sweet :refer :all]
             [full.async :refer :all]
-            [clojure.core.async :refer [<!! <! >! >!! go chan close! onto-chan]]))
+            [clojure.core.async :refer [<!! <! >! >!! go chan close! onto-chan timeout]]))
 
 (facts
  (fact
@@ -76,6 +76,11 @@
        (<<??)
        (set))
   => #{2 3}))
+
+(fact
+ (<?? (go-try (alt? (timeout 100) 43
+                    :default (ex-info "foo" {}))))
+ => (throws Exception))
 
 
 ;; go-loop-try
