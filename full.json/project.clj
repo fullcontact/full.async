@@ -1,4 +1,4 @@
-(defproject fullcontact/full.json "0.7.1"
+(defproject fullcontact/full.json "0.7.2-SNAPSHOT"
   :description "Read and write JSON (Cheshire extension)."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -11,9 +11,9 @@
 
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [cheshire "5.5.0"]
-                 [fullcontact/full.time "0.7.1"]
-                 [fullcontact/camelsnake "0.7.1"]
-                 [fullcontact/full.core "0.7.1"]]
+                 [fullcontact/full.time "0.7.2-SNAPSHOT"]
+                 [fullcontact/camelsnake "0.7.2-SNAPSHOT"]
+                 [fullcontact/full.core "0.7.2-SNAPSHOT"]]
 
   :aot :all
 
