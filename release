@@ -1,0 +1,2 @@
+export JAVA_CMD=${JAVA17_HOME?"Please set JAVA17_HOME environoment variable"}/bin/java
+lein release
