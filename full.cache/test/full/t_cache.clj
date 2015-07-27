@@ -102,7 +102,7 @@
         => (every-checker
              nil
              (fn [_] (= 1 (@get-cnt "k1")))
-             (fn [_] (nil? (@set-cnt "k1")))
+             (fn [_] (= 1 (@set-cnt "k1")))
              (fn [_] (= 1 @load-cnt)))))))
 
 (facts

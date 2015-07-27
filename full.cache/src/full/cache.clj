@@ -32,32 +32,47 @@
                        :mult mult
                        :first? true}))))
 
+::none
+
+(defn none->nil
+  [v]
+  (when (not= v ::none)
+    v))
+
+(defn nil->none
+  [v]
+  (if v
+    v
+    ::none))
+
 (defn- do-get-or-load>
   [k loader> timeout {:keys [setf getf states]}]
   (go-try
-    (or (getf k)
-        ; value missing - load it
-        (let [new-states (swap! states get-or-create-state k)
-              state (new-states k)]
-          (if (:first? state)
-            ; first invocation - load state and publish to subsequent waiting invocations
-            (let [in-chan (:in-chan state)
-                  r (try (loader>) (catch Exception e e))
-                  v (if (instance? ReadPort r)
-                      (<! r)
-                      r)]
-              (when (and v (not (instance? Throwable v)))
-                (setf k v timeout))
-              (swap! states dissoc k)
-              (when v
-                (>! in-chan v))
-              (close! in-chan)
-              v)
-            ; second+ invocation - wait for first invocation to load the results and publish
-            ; via multiplexer
-            (let [out-chan (chan)]
-              (tap (:mult state) out-chan)
-              (<! out-chan)))))))
+    (none->nil  ; :none keyword means that nil value is cached, convert back to nil
+      (or (getf k)
+          ; value missing - load it
+          (let [new-states (swap! states get-or-create-state k)
+                state (new-states k)]
+            (if (:first? state)
+              ; first invocation - load state and publish to subsequent waiting invocations
+              (let [in-chan (:in-chan state)
+                    r (try (loader>) (catch Exception e e))
+                    v (if (instance? ReadPort r)
+                        (<! r)
+                        r)]
+                (when (not (instance? Throwable v))
+                  ; convert nil to ::none so that we can cache nils as well
+                  (setf k (nil->none v) timeout))
+                (swap! states dissoc k)
+                (when v
+                  (>! in-chan v))
+                (close! in-chan)
+                v)
+              ; second+ invocation - wait for first invocation to load the results and publish
+              ; via multiplexer
+              (let [out-chan (chan)]
+                (tap (:mult state) out-chan)
+                (<! out-chan))))))))
 
 
 ;;; REMOTE CACHE
@@ -283,6 +298,10 @@
   value."
   [k loader> timeout]
   (do-get-or-load> k loader> timeout
-                   {:getf (fn [k] (get k timeout))
-                    :setf set
+                   {:getf (fn [k] (let [v (get k timeout)]
+                                    (log/error "GET" k "=>" v)
+                                    v))
+                    :setf (fn [k v timeout]
+                            (log/error "SET>" k "=>" v)
+                            (set k v timeout))
                     :states get-or-load-states}))
