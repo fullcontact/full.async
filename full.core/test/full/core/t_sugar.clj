@@ -76,3 +76,29 @@
   (update-first [] inc) => []
   (update-first [1] inc) => [2]
   (update-first [1 2 3] inc) => [2 2 3])
+
+(facts "number formatting"
+  (num->compact 0.1) => "0.1"
+  (num->compact 0.11) => "0.11"
+  (num->compact 0.19) => "0.19"
+  (num->compact 0.191) => "0.19"
+  (num->compact 0.199) => "0.2"
+  (num->compact 1) => "1"
+  (num->compact 1.12) => "1.12"
+  (num->compact 10.12) => "10.1"
+  (num->compact 100.12) => "100"
+  (num->compact 1000) => "1K"
+  (num->compact 1290) => "1.29K"
+  (num->compact 1029) => "1.03K"
+  (num->compact 10290) => "10.3K"
+  (num->compact 102900) => "103K"
+  (num->compact 950050) => "950K"
+  (num->compact 1000000) => "1M"
+  (num->compact 1200000) => "1.2M"
+  (num->compact 1251000) => "1.25M"
+  (num->compact 11251000) => "11.3M"
+  (num->compact 911251000) => "911M"
+  (num->compact 1911251000) => "1.91B"
+  (num->compact 11911251000) => "11.9B"
+  (num->compact 119112510000) => "119B"
+  (num->compact 1191125100000) => "1.19T")

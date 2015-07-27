@@ -372,3 +372,44 @@
   "Returns ellapsed time in milliseconds since the time bookmark."
   [time-bookmark]
   (/ (double (- (. System (nanoTime)) time-bookmark)) 1000000.0))
+
+
+;;; Numbers
+
+
+(defn format-opt-prec
+  [num precision]
+  (loop [v (format (str "%." precision "f") (double num))]
+    (if (pos? precision)
+      (let [length (.length v)
+            lc (.charAt v (dec length))]
+        (if (= lc \0)
+          (recur (.substring v 0 (dec length)))
+          (if (= lc \.)
+            (.substring v 0 (dec length))
+            v)))
+      v)))
+
+(defn num->compact
+  [num & {:keys [prefix suffix]}]
+  (when num
+    (let [abs (Math/abs (double num))]
+      (str
+        (if (neg? num) "-" "")
+        prefix
+        (cond
+          (> 10 abs) (format-opt-prec abs 2)
+          (> 100 abs) (format-opt-prec abs 1)
+          (> 1000 abs) (format-opt-prec abs 0)
+          (> 10000 abs) (str (format-opt-prec (/ abs 1000) 2) "K")
+          (> 100000 abs) (str (format-opt-prec (/ abs 1000) 1) "K")
+          (> 1000000 abs) (str (format-opt-prec (/ abs 1000) 0) "K")
+          (> 10000000 abs) (str (format-opt-prec (/ abs 1000000) 2) "M")
+          (> 100000000 abs) (str (format-opt-prec (/ abs 1000000) 1) "M")
+          (> 1000000000 abs) (str (format-opt-prec (/ abs 1000000) 0) "M")
+          (> 10000000000 abs) (str (format-opt-prec (/ abs 1000000000) 2) "B")
+          (> 100000000000 abs) (str (format-opt-prec (/ abs 1000000000) 1) "B")
+          (> 1000000000000 abs) (str (format-opt-prec (/ abs 1000000000) 0) "B")
+          :else (str (format-opt-prec (/ abs 1000000000000) 2) "T")
+          )
+        suffix))))
