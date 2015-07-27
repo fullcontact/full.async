@@ -298,10 +298,6 @@
   value."
   [k loader> timeout]
   (do-get-or-load> k loader> timeout
-                   {:getf (fn [k] (let [v (get k timeout)]
-                                    (log/error "GET" k "=>" v)
-                                    v))
-                    :setf (fn [k v timeout]
-                            (log/error "SET>" k "=>" v)
-                            (set k v timeout))
+                   {:getf (fn [k] (get k timeout))
+                    :setf set
                     :states get-or-load-states}))
