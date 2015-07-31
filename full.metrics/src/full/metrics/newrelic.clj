@@ -1,19 +1,8 @@
 (ns full.metrics.newrelic
-  (:require [com.climate.newrelic.trace :refer [defn-traced]]
-            [full.async :refer [<? go-try]])
-  (:import (com.newrelic.api.agent NewRelic Request Response)))
+  (:require [full.async :refer [<? go-try]])
+  (:import (com.newrelic.api.agent NewRelic Request Response Trace)))
 
-(defn get-newrelic-app-name
-  "Returns the value of System property -Dnewrelic.config.app_name if
-  it is defined, nil if it is not."
-  []
-  (System/getProperty "newrelic.config.app_name"))
-
-(defn is-enabled?
-  "Checks the JVM args to see if New Relic monitoring is enabled.
-  Returns truthy/falsey."
-  []
-  (get-newrelic-app-name))
+(def is-enabled? (some? (System/getProperty "newrelic.config.app_name")))
 
 (defn newrelic-request
   "Takes a Ring request and returns a com.newrelic.api.agent.Request."
@@ -38,17 +27,23 @@
     (getStatusMessage [this] nil)
     (getContentType [this] (-> ring-response :headers :content-type))))
 
-(defn-traced trace-async>
-  "Middleware for reporting web requests to New Relic."
+(defn ^{:newrelic-method-annotations {Trace {:dispatcher true}}} tracerAsync
+  "Named tracerAsync since the new relic extension expects java compliant names. Simple async function that sets
+  request/response data on new relic tx. No dive down into mysql queries, etc yet."
+  [handler> request]
+  (go-try
+    (let [response (<? (handler> request))
+          nr-request (newrelic-request request)
+          nr-response (newrelic-response response)]
+      (when is-enabled?
+         (NewRelic/setRequestAndResponse nr-request nr-response))
+      response)))
+
+(defn trace>
   [handler>]
   (fn [request]
     (go-try
-     (let [response (<? (handler> request))
-           nr-request (newrelic-request request)
-           nr-response (newrelic-response response)]
-       (when (is-enabled?)
-         (NewRelic/setRequestAndResponse nr-request nr-response))
-       response))))
+      (<? (tracerAsync handler> request)))))
 
 (defn report-error
   "Sends any sort of error to the New Relic agent. We expect the agent
