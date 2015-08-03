@@ -15,9 +15,6 @@
                  [com.climate/clj-newrelic "0.2.1"]
                  [fullcontact/full.async "0.7.4-SNAPSHOT"]
                  [fullcontact/full.core "0.7.4-SNAPSHOT"]]
-
-  :aot :all
-
+  :aot [full.metrics] ;clojure new relic extension doesn't work when aot'ed.
   :plugins [[lein-midje "3.1.3"]]
-
   :profiles {:dev {:dependencies [[midje "1.6.3"]]}})
