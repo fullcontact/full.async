@@ -1,4 +1,4 @@
-(defproject fullcontact/full.metrics "0.7.4-SNAPSHOT"
+(defproject fullcontact/full.metrics "0.7.4"
   :description "Clojure application metrics sugar for Riemann backend."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -13,8 +13,8 @@
                  [riemann-clojure-client "0.2.11" :exclusions [org.clojure/tools.logging
                                                                org.slf4j/slf4j-api]]
                  [com.climate/clj-newrelic "0.2.1"]
-                 [fullcontact/full.async "0.7.4-SNAPSHOT"]
-                 [fullcontact/full.core "0.7.4-SNAPSHOT"]]
+                 [fullcontact/full.async "0.7.4"]
+                 [fullcontact/full.core "0.7.4"]]
   :aot [full.metrics] ;clojure new relic extension doesn't work when aot'ed.
   :plugins [[lein-midje "3.1.3"]]
   :profiles {:dev {:dependencies [[midje "1.6.3"]]}})
