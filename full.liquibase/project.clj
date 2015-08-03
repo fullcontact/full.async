@@ -1,4 +1,4 @@
-(defproject fullcontact/full.liquibase "0.7.4"
+(defproject fullcontact/full.liquibase "0.7.5-SNAPSHOT"
   :description "Liquibase database schema creation/upgrading."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -15,7 +15,7 @@
                  [com.mattbertolini/liquibase-slf4j "1.2.1"
                   :exclusions [org.slf4j/slf4j-api
                                org.yaml/snakeyaml]]
-                 [fullcontact/full.core "0.7.4"]]
+                 [fullcontact/full.core "0.7.5-SNAPSHOT"]]
 
   :aot :all
 
