@@ -1,7 +1,7 @@
 ; Asynchonous HTTP server, based on http-kit and core.async
 
 (ns full.http.server
-  (:require [clojure.core.async :refer [go]]
+  (:require [clojure.core.async :refer [go go-loop <!]]
             [ring.util.response :refer [content-type]]
             [compojure.response :as response]
             [compojure.core :as compojure]
@@ -18,7 +18,8 @@
             [full.async :refer :all]
             [full.json :refer [write-json]]
             [full.metrics :as metrics]
-            [ring.middleware.cors :as rc])
+            [ring.middleware.cors :as rc]
+            [clojure.core.async :as async])
   (:import (clojure.core.async.impl.protocols ReadPort)
            (clojure.lang ExceptionInfo)
            (org.httpkit HttpStatus)))
@@ -27,21 +28,31 @@
 ;; MIDLEWARE
 
 
+(defn- encode-json
+  [chunk response]
+  (str (if-let [json-key-fn (:json-key-fn response)]
+         (write-json chunk :json-key-fn json-key-fn)
+         (write-json chunk))
+       \newline))
+
 (defn json-response>
   "Middleware that converts responses with a map or a vector for a body into a
   JSON response."
   [handler>]
   (fn [request]
     (go-try
-      (let [response (<? (handler> request))]
-        (if (coll? (:body response))
-          (let [json-response (if (contains? response :json-key-fn)
-                                (update-in response [:body] #(write-json % :json-key-fn (:json-key-fn response)))
-                                (update-in response [:body] write-json))]
-            (if (contains? (:headers response) "Content-Type")
-              json-response
-              (content-type json-response "application/json; charset=utf-8")))
-          response)))))
+      (let [response (<? (handler> request))
+            body (:body response)]
+        (cond-> response
+                ; collection - complete response
+                (coll? body)
+                  (assoc :body (encode-json body response))
+                ; channel - streaming response
+                (instance? ReadPort body)
+                  (assoc :body (async/map #(encode-json % response) [body]))
+                ; add json content-type
+                (not (contains? (:headers response) "Content-Type"))
+                  (content-type (str "application/json; charset=utf-8")))))))
 
 (defn normalize-response> [handler>]
   (fn [req]
@@ -249,6 +260,20 @@
           <?
           (cookies-response {:encoder encoder})))))
 
+(defn send-streaming-response
+  [response channel]
+  (go-loop []
+    (let [chunk (<! (:body response))]
+      (cond
+        (instance? Throwable chunk)
+          (httpkit/send! channel (json-exception-renderer chunk) true)
+        (nil? chunk)
+          (httpkit/close channel)
+        :else
+          (do
+            (httpkit/send! channel (assoc response :body chunk) false)
+            (recur))))))
+
 (defn- send-async
   "Private middleware that sends the response asynchronously via http-kit's
   async support. Must be the last item in middleware stack."
@@ -260,7 +285,12 @@
         (try
           (if-let [response< (handler> request)]
             (let [response (<? response<)]
-              (httpkit/send! channel response true))
+              (if (instance? ReadPort (:body response))
+                ; streaming response
+                (<? (send-streaming-response response channel))
+                ; basic response - send and close
+                (httpkit/send! channel response true)))
+            ; handler returned nil (some kind of error condition)
             (httpkit/close channel))
           (catch Throwable e
             (log/error e "error sending async response")
