@@ -49,7 +49,10 @@
                   (assoc :body (encode-json body response))
                 ; channel - streaming response
                 (instance? ReadPort body)
-                  (assoc :body (async/map #(encode-json % response) [body]))
+                  (assoc :body (async/map #(if (coll? %)
+                                            (encode-json % response)
+                                            %)
+                                          [body]))
                 ; add json content-type
                 (not (contains? (:headers response) "Content-Type"))
                   (content-type (str "application/json; charset=utf-8")))))))
