@@ -75,4 +75,12 @@
          (pmap>> #(go (inc %)) 2)
          (<<??)
          (set))
-    => #{2 3}))
+    => #{2 3})
+
+  (fact
+    (let [ch1 (chan)
+          ch2 (chan)]
+      (go (doto ch2 (>!! 3) (>!! 4) close!))
+      (go (doto ch1 (>!! 1) (>!! 2) close!))
+      (<<?? (concat>> ch1 ch2))
+      => [1 2 3 4])))
