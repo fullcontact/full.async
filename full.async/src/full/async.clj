@@ -178,3 +178,22 @@
           (>! result acc)
           (async/close! result))))
     result))
+
+(defn concat>>
+  "Concatenates two or more channels. First takes all values from first channel
+  and supplies to output channel, then takes all values from second channel and
+  so on. Similiar to core.async/merge but maintains the order of values."
+  [& cs]
+  (let [out (chan)]
+    (go
+      (loop [cs cs]
+        (if-let [c (first cs)]
+          (if-let [v (<! c)]
+            (do
+              (>! out v)
+              (recur cs))
+            ; channel empty - move to next channel
+            (recur (rest cs)))
+          ; no more channels remaining - close output channel
+          (async/close! out))))
+    out))
