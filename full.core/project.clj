@@ -16,7 +16,8 @@
                  [org.slf4j/jul-to-slf4j "1.7.12"]
                  [me.moocar/logback-gelf "0.12" :exclusions [org.slf4j/slf4j-api]]
                  [ch.qos.logback/logback-classic "1.1.3" :exclusions [org.slf4j/slf4j-api]]
-                 [circleci/clj-yaml "0.5.4"]
+                 [clj-yaml "0.4.0" :exclusions [org.yaml/snakeyaml]]
+                 [org.yaml/snakeyaml "1.15"]
                  [commons-codec/commons-codec "1.10"]]
 
   :aot :all
