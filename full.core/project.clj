@@ -1,4 +1,4 @@
-(defproject fullcontact/full.core "0.8.3"
+(defproject fullcontact/full.core "0.8.4-SNAPSHOT"
   :description "FullContact's core Clojure library - logging, configuration and common helpers."
 
   :url "https://github.com/fullcontact/full.monty"
