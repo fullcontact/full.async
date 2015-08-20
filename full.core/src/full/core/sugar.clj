@@ -197,9 +197,16 @@
 
 ;;; String helpers
 
+
+(defn as-long [s]
+  (when s
+    (try
+      (Long/parseLong (str s))
+      (catch NumberFormatException _ nil))))
+
 (defn number-or-string [s]
   (try
-    (Integer/parseInt s)
+    (Long/parseLong s)
     (catch Exception _ s)))
 
 (defn remove-prefix [s prefix]
