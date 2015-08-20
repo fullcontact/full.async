@@ -22,3 +22,7 @@
            (io/reader)
            (java.io.PushbackReader.)
            (edn/read edn-reader-opts)))
+
+(defn write-edn
+  [object]
+  (pr-str object))
