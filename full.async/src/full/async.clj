@@ -128,32 +128,34 @@
   (<?? (go-try (<?* chs))))
 
 (defn pmap>>
-  "Takes objects from ch, asynchrously applies function f> (function should
-  return channel), takes the result from the returned channel and if it's not
-  nil, puts it in the results channel. Returns the results channel. Closes the
+  "Takes objects from in-ch, asynchrously applies function f> (function should
+  return a channel), takes the result from the returned channel and if it's
+  truthy, puts it in the out-ch. Returns the closed out-ch. Closes the
   returned channel when the input channel has been completely consumed and all
-  objects have been processed."
-  [f> parallelism ch]
-  {:pre [(fn? f>)
-         (and (integer? parallelism) (pos? parallelism))
-         (instance? ReadPort ch)]}
-  (let [results (async/chan)
-        threads (atom parallelism)]
-    (dotimes [_ parallelism]
-      (go
-        (loop []
-          (when-let [obj (<! ch)]
-            (if (instance? Throwable obj)
-              (do
-                (>! results obj)
-                (async/close! results))
-              (do
-                (when-let [result (<! (f> obj))]
-                  (>! results result))
-                (recur)))))
-        (when (zero? (swap! threads dec))
-          (async/close! results))))
-    results))
+  objects have been processed.
+  If out-ch is not provided, an unbuffered one will be used."
+  ([f> parallelism in-ch]
+   (pmap>> f> parallelism (async/chan) in-ch))
+  ([f> parallelism out-ch in-ch]
+   {:pre [(fn? f>)
+          (and (integer? parallelism) (pos? parallelism))
+          (instance? ReadPort in-ch)]}
+   (let [threads (atom parallelism)]
+     (dotimes [_ parallelism]
+       (go
+         (loop []
+           (when-let [obj (<! in-ch)]
+             (if (instance? Throwable obj)
+               (do
+                 (>! out-ch obj)
+                 (async/close! out-ch))
+               (do
+                 (when-let [result (<! (f> obj))]
+                   (>! out-ch result))
+                 (recur)))))
+         (when (zero? (swap! threads dec))
+           (async/close! out-ch))))
+     out-ch)))
 
 (defn engulf
   "Similiar to dorun. Simply takes messages from channel but does nothing with
