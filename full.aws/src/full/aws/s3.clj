@@ -6,14 +6,12 @@
             [full.http.client :as http]
             [full.time :refer :all]
             [full.edn :refer [read-edn]])
-  (:import (com.amazonaws.services.s3 AmazonS3Client)
-           (com.amazonaws.services.s3.model GeneratePresignedUrlRequest)
+  (:import (com.amazonaws.services.s3.model GeneratePresignedUrlRequest)
            (java.util Date)
            (com.amazonaws HttpMethod)
            (java.io InputStream)))
 
-(def client (delay (doto (AmazonS3Client. @aws/credentials-provider)
-                     (.setRegion @aws/region))))
+(def client aws/default-https-client)
 
 (defn- expiration-date []
   (let [d (Date.)
@@ -41,13 +39,14 @@
     * :headers - HTTP headers such as Content-Type
     * :timeout - request timeout in seconds"
   [^String bucket-name, ^String key, ^String body
-   & {:keys [headers timeout]}]
+   & {:keys [headers timeout client] 
+      :or {client @client}}]
   {:pre [bucket-name key body]}
   (go-try
     (let [content-type (or (get headers "Content-Type")
                            "text/plain")
           url (.generatePresignedUrl
-                @client
+                client
                 (presign-request bucket-name
                                  key
                                  :method HttpMethod/PUT
@@ -68,11 +67,12 @@
 
 (defn put-edn>
   [^String bucket-name, ^String key, ^String object
-  & {:keys [headers timeout]}]
+  & {:keys [headers timeout client]}]
   (put-object> bucket-name key (pr-str object)
                :headers (-> (or headers {})
                             (assoc "Content-Type" "application/edn"))
-               :timeout timeout))
+               :timeout timeout
+               :client client))
 
 (defn- string-response-parser [res]
   (cond
@@ -82,10 +82,10 @@
 
 (defn get-object>
   [^String bucket-name, ^String key
-   & {:keys [headers timeout response-parser]
-      :or {response-parser string-response-parser}}]
+   & {:keys [headers timeout response-parser client]
+      :or {response-parser string-response-parser client @client}}]
   (go-try
-    (let [url (.generatePresignedUrl @client (presign-request bucket-name key))]
+    (let [url (.generatePresignedUrl client (presign-request bucket-name key))]
       (-> (http/req> {:url (str url)
                       :method :get
                       :headers headers
@@ -95,8 +95,9 @@
 
 (defn get-edn>
   [^String bucket-name, ^String key
-   & {:keys [headers timeout]}]
+   & {:keys [headers timeout client]}]
   (get-object> bucket-name key
                :headers headers
                :timeout timeout
-               :response-parser (comp read-edn string-response-parser)))
+               :response-parser (comp read-edn string-response-parser)
+               :client client))
