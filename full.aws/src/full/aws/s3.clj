@@ -93,6 +93,17 @@
           (<?)
           (response-parser)))))
 
+(defn get-object-metadata>
+  [^String bucket-name, ^String key
+   & {:keys [headers timeout response-parser client]
+      :or {response-parser string-response-parser client @client}}]
+  (go-try
+    (let [url (.generatePresignedUrl client (presign-request bucket-name key :method (HttpMethod/HEAD)))]
+      (-> (http/req> {:url (str url)
+                      :method :head
+                      :timeout timeout})
+          (<?)))))
+
 (defn get-edn>
   [^String bucket-name, ^String key
    & {:keys [headers timeout client]}]
