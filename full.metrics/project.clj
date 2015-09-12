@@ -10,7 +10,7 @@
   :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]
 
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [riemann-clojure-client "0.2.11" :exclusions [org.clojure/tools.logging
+                 [riemann-clojure-client "0.4.1" :exclusions [org.clojure/tools.logging
                                                                org.slf4j/slf4j-api]]
                  [com.climate/clj-newrelic "0.2.1"]
                  [fullcontact/full.async "0.8.9-SNAPSHOT"]
