@@ -16,7 +16,6 @@
 (def riemann-config (opt :riemann :default nil))
 (def protocol (opt [:riemann :protocol] :default "udp"))
 (def tags (opt [:riemann :tags] :default nil))
-(def acknowledge-by-default (opt [:riemann :acknowledge-by-default] :default false))
 
 (def client (delay (if (= "udp" @protocol)
                      (do
@@ -36,17 +35,17 @@
           (string? event) (->> (hash-map :service))
           @tags (assoc :tags (concat (or (:tags event) []) @tags))))
 
-(defn send-event [event ack]
+(defn send-event [event]
   (when @riemann-config
     (try
-      (rmn/send-event @client event ack)
+      (rmn/send-event @client event)
       (catch Exception e
         (log/error e "error sending event" event)))))
 
-(defn- send-events [events ack]
+(defn- send-events [events]
   (when @riemann-config
     (try
-      (rmn/send-events @client events ack)
+      (rmn/send-events @client events)
       (catch Exception e
         (log/error e "error sending events" events)))))
 
@@ -58,18 +57,16 @@
 (defn track
   "Send an event over client. Requests acknowledgement from the Riemann
    server by default. If ack is false, sends in fire-and-forget mode."
-  ([event] (track event @acknowledge-by-default))
-  ([event ack]
+  ([event]
    (doto (normalize event)
      (log-event)
-     (send-event (true? ack)))))
+     (send-event))))
 
 (defn track*
-  ([events] (track* events @acknowledge-by-default))
-  ([events ack]
+  ([events]
    (let [events (map normalize events)]
      (doseq [event events] (log-event event))
-     (send-events events (true? ack)))))
+     (send-events events))))
 
 
 ;;; EVENT PUT SUGAR ;;;
