@@ -30,8 +30,8 @@
 
 (defn- encode-json
   [chunk response]
-  (str (if-let [json-key-fn (:json-key-fn response)]
-         (write-json chunk :json-key-fn json-key-fn)
+  (str (if (contains? response :json-key-fn)
+         (write-json chunk :json-key-fn (:json-key-fn response))
          (write-json chunk))
        \newline))
 
