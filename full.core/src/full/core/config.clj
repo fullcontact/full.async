@@ -103,10 +103,8 @@
          (or (nil? mapper)
              (fn? mapper))]}
   (delay
-    (let [value (or (if (vector? sel)
-                      (get-in @_config sel)
-                      (get @_config sel))
-                    default)]
+    (let [conf-value (if (vector? sel) (get-in @_config sel) (get @_config sel))
+          value (if (some? conf-value) conf-value default)]
       (when (= ::undefined value)
         (throw (RuntimeException. (str "Option " sel " is not configured"))))
       (if mapper
