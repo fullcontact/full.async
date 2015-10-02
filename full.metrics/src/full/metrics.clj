@@ -15,16 +15,24 @@
 
 (def riemann-config (opt :riemann :default nil))
 (def protocol (opt [:riemann :protocol] :default "udp"))
+(def batch-size (opt [:riemann :batch-size] :default nil))
 (def tags (opt [:riemann :tags] :default nil))
 
-(def client (delay (if (= "udp" @protocol)
-                     (do
-                       (log/info "Connecting to Riemann server" (:host @riemann-config) "via UDP")
-                       (rmn/udp-client @riemann-config))
-                     (do
-                       (log/info "Connecting to Riemann server" (:host @riemann-config) "via TCP")
-                       (rmn/tcp-client @riemann-config)))))
+(defn get-client
+  [{:keys [protocol config batch-size]}]
+  (log/info "Connecting to Riemann server" (:host config) "via" protocol)
+  (let [rclient (or (when (= "tcp" protocol)
+                      (rmn/tcp-client config))
+                    (rmn/udp-client config))]
+    (if batch-size
+      (do
+        (log/info "Enabling RiemannBatchClient with size" batch-size)
+        (rmn/batch-client rclient batch-size))
+      rclient)))
 
+(def client (delay (get-client {:protocol @protocol 
+                                :config @riemann-config 
+                                :batch-size @batch-size})))
 
 ;;; EVENT PUT ;;;
 
