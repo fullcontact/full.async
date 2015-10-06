@@ -13,8 +13,7 @@
            (java.io Writer)))
 
 
-;;; date time helpers ;;;
-
+;;; Date time helpers
 
 (def iso-ts-formatter (tf/formatters :date-time))
 (def iso-ts-formatter-no-ms (tf/formatters :date-time-no-ms))
@@ -22,9 +21,16 @@
 (def iso-d-formatter (tf/formatters :date))
 (def iso-year-month-formatter (tf/formatters :year-month))
 (def iso-year-formatter (tf/formatters :year))
-(def rfc822-formatter (-> (DateTimeFormat/forPattern "EEE, dd MMM yyyy HH:mm:ss z")
-                          (.withLocale Locale/US)
-                          (.withZone (FixedDateTimeZone. "UTC" "UTC" 0 0))))
+
+(def rfc822-formatter
+  (-> (DateTimeFormat/forPattern "EEE, dd MMM yyyy HH:mm:ss z")
+      (.withLocale Locale/US)
+      (.withZone (FixedDateTimeZone. "UTC" "UTC" 0 0))))
+
+(def rfc7231-formatter
+  (-> (DateTimeFormat/forPattern "E, dd MMM yyyy HH:mm:ss z")
+      (.withLocale Locale/US)
+      (.withZone (FixedDateTimeZone. "UTC" "UTC" 0 0))))
 
 (defn dt<-iso-ts [ts]
   (when ts
@@ -44,17 +50,20 @@
   [dt]
   (when dt (tf/unparse iso-ts-formatter dt)))
 
-(defn dt<-rfc822-ts
-  [ts]
+(defn dt<-rfc822-ts [ts]
   (when ts
     (try
       (tf/parse rfc822-formatter ts)
       (catch Exception e
         (log/error "Error parsing timestamp" ts (str e))))))
 
-(defn dt->rfc822-ts
-  [dt]
+(defn dt->rfc822-ts [dt]
   (when dt (tf/unparse rfc822-formatter dt)))
+
+(defn dt->rfc7231-ts
+  "Returns the DateTime as an `HTTP date` (RFC 7231) string."
+  [dt]
+  (when dt (tf/unparse rfc7231-formatter dt)))
 
 (defn d<-iso-d [ts]
   (when ts
@@ -93,8 +102,7 @@
   (tt/within? (tt/interval from to) dt))
 
 
-;;; RELATIVE DATE FORMATTING
-
+;;; Relative date formatting
 
 (def ms-second 1000)
 (def ms-minute (* ms-second 60))
@@ -111,8 +119,7 @@
                    [ms-hour ms-day "h"]
                    [ms-minute ms-hour "mi"]])
 
-(defn dt->rel
-  [dt]
+(defn dt->rel [dt]
   (let [now-ms (.getMillis (now-utc))
         ms (.getMillis dt)
         delta (- ms now-ms)
@@ -135,8 +142,7 @@
       (str "in " period))))
 
 
-;;; (DE)SERIALZIATION
-
+;;; (De)serialziation
 
 (defmethod print-method DateTime
   [^DateTime d ^Writer w]
@@ -154,7 +160,7 @@
 
 (def read-instant-dt
   "To read an instant as an org.joda.time.DateTime, bind *data-readers* to a
-map with this var as the value for the 'inst key."
+   map with this var as the value for the 'inst key."
   (partial i/parse-timestamp (i/validated construct-dt)))
 
 (defmacro with-dt-reader [& body]
