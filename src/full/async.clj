@@ -199,3 +199,31 @@
           ; no more channels remaining - close output channel
           (async/close! out))))
     out))
+
+(defn partition-all>> [n in-ch & {:keys [out-ch]}]
+  "Batches results from input channel into vectors of n size and supplies
+  them to ouput channel. If any input result is an exception, it is put onto
+  output channel directly and ouput channel is closed."
+  {:pre [(pos? n)]}
+  (let [out-ch (or out-ch (chan))]
+    (go-loop [batch []]
+      (if-let [obj (<! in-ch)]
+        (if (instance? Exception obj)
+          ; exception - put on output and close
+          (do (>! out-ch obj)
+              (async/close! out-ch))
+          ; add object to current batch
+          (let [new-batch (conj batch obj)]
+            (if (= n (count new-batch))
+              ; batch size reached - put batch on output and start a new one
+              (do
+                (>! out-ch new-batch)
+                (recur []))
+              ; process next object
+              (recur new-batch))))
+        ; no more results - put outstanding batch onto output and close
+        (do
+          (when (not-empty batch)
+            (>! out-ch batch))
+          (async/close! out-ch))))
+    out-ch))
