@@ -39,9 +39,10 @@
 
 
 ;;; Dynamic code reloading
-
 (defn- check-namespace-changes [track on-reload]
   (some->> (track)
+           (not-empty)
+           ((fn [x] (log/info "✂ ------------------------------------------------------------------------------") x))
            (map (fn [ns-sym]
                   (try
                     (log/info "Reloading namespace:" ns-sym)
