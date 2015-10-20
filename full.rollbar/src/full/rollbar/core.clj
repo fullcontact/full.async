@@ -60,7 +60,7 @@
   [req]
   {:method (clojure.string/upper-case (name (:request-method req)))
    :url (:uri req)
-   :headers (:headers req)
+   :headers (dissoc (:headers req) "authorization")
    :user_ip (:remote-addr req)})
 
 (defn rollbar-payload
