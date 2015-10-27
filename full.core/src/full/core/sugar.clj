@@ -194,6 +194,13 @@
     (assoc s 0 (m (first s)))
     s))
 
+(defn juxt-partition
+  "Takes a predicate function, a collection and one ore more
+   (fn predicate coll) functions that will be applied to the given collection.
+   Example: (juxt-partition odd? [1 2 3 4] filter remove) => [(1 3) (2 4)]."
+  [pred coll & fns]
+  ((apply juxt (map #(partial % pred) fns)) coll))
+
 
 ;;; String helpers
 

@@ -123,3 +123,8 @@
   (?update {} :foo inc) => {}
   (?update {:foo 0} :foo inc) => {:foo 1}
   (?update {:foo 0} :foo (constantly nil)) => {})
+
+
+(facts "about juxt-partition"
+  (juxt-partition odd? [1 2 3 4] filter remove) => ['(1 3) '(2 4)]
+  (juxt-partition odd? [1 2 3 4] remove filter) => ['(2 4) '(1 3)])
