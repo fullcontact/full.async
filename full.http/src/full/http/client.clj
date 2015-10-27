@@ -116,11 +116,12 @@
   return either response or exception."
   [{:keys [base-url resource url method params body headers basic-auth
            timeout form-params body-json-key-fn response-parser
-           follow-redirects?]
+           follow-redirects? as]
     :or {method :get
          body-json-key-fn ->camelCase
          response-parser kebab-case-json-response-parser
-         follow-redirects? true}}]
+         follow-redirects? true
+         as :auto}}]
   {:pre [(or url (and base-url resource))]}
   (let [req {:url (or url (str base-url "/" resource))
              :method method
@@ -130,7 +131,8 @@
              :form-params form-params
              :basic-auth basic-auth
              :timeout (* (or timeout @http-timeout) 1000)
-             :follow-redirects follow-redirects?}
+             :follow-redirects follow-redirects?
+             :as as}
         full-url (str (upper-case (name method))
                       " " (:url req)
                       (if (not-empty (:query-params req))
