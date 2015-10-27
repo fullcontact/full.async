@@ -17,4 +17,4 @@
                  [fullcontact/full.core "0.8.15-SNAPSHOT"]]
   :aot [full.metrics] ;clojure new relic extension doesn't work when aot'ed.
   :plugins [[lein-midje "3.1.3"]]
-  :profiles {:dev {:dependencies [[midje "1.6.3"]]}})
+  :profiles {:dev {:dependencies [[midje "1.7.0"]]}})
