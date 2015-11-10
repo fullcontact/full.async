@@ -26,6 +26,14 @@
   [ch]
   (throw-if-throwable (when ch (<!! ch))))
 
+(defmacro try<?
+  [ch & body]
+  `(try (<? ~ch) ~@body))
+
+(defmacro try<??
+  [ch & body]
+  `(try (<?? ~ch) ~@body))
+
 (defmacro alts?
   "Same as core.async alts! but throws an exception if the channel returns a
   throwable object."
