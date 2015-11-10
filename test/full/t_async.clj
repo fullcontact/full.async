@@ -94,4 +94,12 @@
            ch)
          (partition-all>> 2)
          (<<??))
-    => [[1 2] [3]]))
+    => [[1 2] [3]])
+
+  (fact
+    (try<??
+      (go-try (throw (Exception.)))
+      false
+      (catch Exception _
+        true))
+    => true))
