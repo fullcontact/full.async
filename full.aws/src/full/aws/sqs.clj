@@ -9,7 +9,7 @@
             [full.edn :refer [read-edn write-edn]]
             [full.json :refer [read-json write-json]]
             [full.aws.core :as aws]
-            [full.metrics :refer [thread-try-timeit] :as metrics]
+            [full.metrics :refer [thread-try-timeit timeit] :as metrics]
             [camelsnake.core :refer :all]
             [full.time :refer :all]
             [clj-time.core :as t])
@@ -24,7 +24,7 @@
                                              DeleteQueueRequest
                                              Message
                                              GetQueueAttributesRequest
-                                             ListQueuesRequest)))
+                                             ListQueuesRequest SendMessageBatchRequest SendMessageBatchRequestEntry BatchResultErrorEntry)))
 
 
 (def message-count-fetch-interval (opt [:aws :sqs :message-count-fetch-interval] :default nil))
@@ -175,12 +175,19 @@
       (try-update :sent-timestamp parse-long-ts)
       (try-update :approximate-first-receive-timestamp parse-long-ts)))
 
+(defn- unserialize-message [^Message m unserializer]
+  (try
+    (cond-> (.getBody m)
+            unserializer (unserializer))
+    (catch Exception e
+      (throw (RuntimeException. (str "Error unserializing message " (.getBody m)
+                                     ": " (.getMessage e)) e)))))
+
 (defn- parse-message
   [^Message m queue-url becomes-visible unserializer]
   {:message-id (.getMessageId m)
    :receipt-handle (.getReceiptHandle m)
-   :body (cond-> (.getBody m)
-                 unserializer (unserializer))
+   :body (unserialize-message m unserializer)
    :attributes (parse-message-attributes (.getAttributes m))
    :queue-url queue-url
    :becomes-visible becomes-visible})
@@ -199,6 +206,36 @@
          (cond-> delay-seconds (.withDelaySeconds (int delay-seconds)))
          (->> (.sendMessage @client))
          (.getMessageId)))))
+
+(defn send-message-batch
+  ([queue-url bodies] (send-message-batch queue-url bodies {}))
+  ([queue-url bodies {:keys [serializer] :or {serializer write-edn}}]
+   (timeit
+     "sqs.send-batch"
+     (let [entries (->> bodies
+                        (map-indexed
+                          (fn [i body]
+                            (->> (if serializer
+                                   (serializer body)
+                                   (str body))
+                                 (SendMessageBatchRequestEntry. (str i)))))
+                        )
+           res (->> (SendMessageBatchRequest. queue-url entries)
+                    (.sendMessageBatch @client))]
+       (if-let [failed (not-empty (.getFailed res))]
+         (do
+           (doseq [^BatchResultErrorEntry e failed]
+             (log/error "Error sending message"
+                        (nth bodies (Integer/parseInt (.getId e)))
+                        ":" (.getMessage e) (str "(" (.getCode e) ")")))
+           false)
+         true)))))
+
+(defn send-message-batch>
+  ([queue-url bodies] (send-message-batch> queue-url bodies {}))
+  ([queue-url bodies options]
+    (thread-try
+      (send-message-batch queue-url bodies options))))
 
 (defn- now-plus-seconds [seconds]
   (t/plus (t/now) (t/seconds seconds)))
