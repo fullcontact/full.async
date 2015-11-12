@@ -116,7 +116,7 @@
   return either response or exception."
   [{:keys [base-url resource url method params body headers basic-auth
            timeout form-params body-json-key-fn response-parser
-           follow-redirects? as]
+           follow-redirects? as files]
     :or {method :get
          body-json-key-fn ->camelCase
          response-parser kebab-case-json-response-parser
@@ -128,6 +128,7 @@
              :body (request-body body :json-key-fn body-json-key-fn)
              :query-params params
              :headers headers
+             :multipart files
              :form-params form-params
              :basic-auth basic-auth
              :timeout (* (or timeout @http-timeout) 1000)
