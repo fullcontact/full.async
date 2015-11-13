@@ -6,7 +6,9 @@
             [full.core.log :as log]
             [full.core.config :refer [opt]]
             [riemann.client :as rmn]
+            [riemann.codec :as rc]
             [full.async :refer [go-try thread-try]])
+  (:import (java.net InetAddress))
   (:refer-clojure :exclude [send]))
 
 
@@ -21,6 +23,16 @@
 (defn get-client
   [{:keys [protocol config batch-size]}]
   (log/info "Connecting to Riemann server" (:host config) "via" protocol)
+  (let [localhost (.. InetAddress getLocalHost getHostName)]
+    ;;; Don't do dumb things while sending riemann events.
+    ;;; https://github.com/aphyr/riemann-clojure-client/pull/14
+    (alter-var-root
+      #'rc/encode-client-pb-event
+      (constantly
+        #(-> %
+             (rc/assoc-default :time (/ (System/currentTimeMillis) 1000))
+             (rc/assoc-default :host localhost)
+             rc/encode-pb-event))))
   (let [rclient (or (when (= "tcp" protocol)
                       (rmn/tcp-client config))
                     (rmn/udp-client config))]
