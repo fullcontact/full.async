@@ -202,8 +202,28 @@
   ((apply juxt (map #(partial % pred) fns)) coll))
 
 
-;;; String helpers
+;;; Transient helpers
 
+(defn first! [c] (get c 0))
+(defn last! [c] (get c (dec (count c))))
+
+(defn update-last!
+  "Applies the method m to the last item in a transient sequence"
+  [s m]
+  (if-not (empty s)
+  (if (seq s)
+    (assoc! s (dec (count s)) (m (last! s)))
+    s))
+
+(defn update-first!
+  "Applies the method m to the first item in a transient sequence"
+  [s m]
+  (if-not (empty s)
+    (assoc! s 0 (m (first! s)))
+    s))
+
+
+;;; String helpers
 
 (defn as-long [s]
   (when s
