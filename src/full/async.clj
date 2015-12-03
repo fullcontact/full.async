@@ -166,11 +166,12 @@
      out-ch)))
 
 (defn engulf
-  "Similiar to dorun. Simply takes messages from channel but does nothing with
+  "Similiar to dorun. Simply takes messages from channels but does nothing with
   them. Returns channel that will close when all messages have been consumed."
-  [ch]
-  (go-loop []
-    (when (<! ch) (recur))))
+  [& cs]
+  (let [ch (async/merge cs)]
+    (go-loop []
+      (when (<! ch) (recur)))))
 
 (defn reduce>
   "Performs a reduce on objects from ch with the function f> (which should return
