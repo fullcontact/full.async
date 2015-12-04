@@ -236,3 +236,8 @@
             (>! out-ch batch))
           (async/close! out-ch))))
     out-ch))
+
+(defn count>
+  "Counts items in a channel. Returns a channel with the item count."
+  [ch]
+  (async/reduce (fn [acc _] (inc acc)) 0 ch))

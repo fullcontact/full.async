@@ -1,7 +1,7 @@
 (ns full.t-async
   (:require [midje.sweet :refer :all]
             [full.async :refer :all]
-            [clojure.core.async :refer [<!! >! >!! go chan close!]]))
+            [clojure.core.async :refer [<!! >! >!! go chan close!] :as async]))
 
 (facts
   (fact
@@ -103,3 +103,8 @@
       (catch Exception _
         true))
     => true))
+
+
+(facts "full.async/count>"
+  (fact (<!! (count> (async/to-chan [1 2 3 4]))) => 4)
+  (fact (<!! (count> (async/to-chan []))) => 0))
