@@ -97,7 +97,8 @@
 
 (def message-count-fetch-interval 5000)
 
-(def message-count-cache (atom (cache/ttl-cache-factory {} :ttl message-count-fetch-interval)))
+(def message-count-cache
+  (atom (cache/ttl-cache-factory {} :ttl message-count-fetch-interval)))
 
 (defn message-count>
   "Same as langohr.queue/message-count but with timeout.
@@ -114,21 +115,25 @@
            v))))))
 
 (defn limit-message-count>
-  "Checks if queue is below the given message count. Waits for the count to fall if it isn't."
+  "Checks if queue is below the given message count.
+   Waits for the count to fall if it isn't."
   [ch queue below]
   (async/go-loop []
                  (let [messages (<? (message-count> ch queue))]
                    (when (> messages below)
-                     (log/debug "Queue" queue "over limit" messages ". Waiting " message-count-fetch-interval " ms")
+                     (log/debug "Queue" queue "over limit" messages
+                                ". Waiting " message-count-fetch-interval " ms")
                      (<? (async/timeout message-count-fetch-interval))
                      (recur)))))
 
 (defn monitor-queue-size
-  "Periodically pools queue size (number of pending messages) and submits a metric to Riemann."
+  "Periodically pools queue size (number of pending messages)
+   and submits a metric to Riemann."
   [ch queue]
   (async/go-loop []
                  (when-let [cnt (<? (message-count> ch queue))]
-                   (track {:service (str "rabbit." queue ".messages") :metric cnt}))
+                   (track {:service (str "rabbit." queue ".messages")
+                           :metric cnt}))
                  (<? (async/timeout message-count-fetch-interval))
                  (recur)))
 
@@ -150,3 +155,10 @@
            (pmap (fn [n] (move-message n ch consumer to-queue)))
            (dorun))
       (.basicCancel ch consumer-tag))))
+
+(defn publish-json [ch routing-key queue msg]
+  (lb/publish ch
+              routing-key
+              queue
+              (write-json msg)
+              {:content-type "application/json"}))
