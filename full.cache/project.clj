@@ -1,4 +1,4 @@
-(defproject fullcontact/full.cache "0.8.20"
+(defproject fullcontact/full.cache "0.8.21-SNAPSHOT"
   :description "In-memory + memcache caching for Clojure with async loading."
 
   :url "https://github.com/fullcontact/full.monty"
@@ -13,8 +13,8 @@
                  [net.jodah/expiringmap "0.4.1"]
                  [net.spy/spymemcached "2.12.0"]
                  [com.taoensso/nippy "2.9.0"]
-                 [fullcontact/full.core "0.8.20"]
-                 [fullcontact/full.async "0.8.20"]]
+                 [fullcontact/full.core "0.8.21-SNAPSHOT"]
+                 [fullcontact/full.async "0.8.21-SNAPSHOT"]]
 
   :aot :all
 
