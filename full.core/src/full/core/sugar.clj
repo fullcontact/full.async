@@ -124,7 +124,7 @@
 (defn insert-at
   "Returns the sequence s with the item i inserted at 0-based index idx."
   [s idx i]
-  (apply conj (into (empty s) (take idx s)) (cons i ( nthrest s idx))))
+  (apply conj (into (empty s) (take idx s)) (cons i (nthrest s idx))))
 
 
 (defn remove-at
@@ -136,7 +136,7 @@
 (defn replace-at
   "Returns the sequence s with the item at 0-based index idx."
   [s idx i]
-  (apply conj (into (empty s) (take idx s)) (cons i ( nthrest s (inc idx)))))
+  (apply conj (into (empty s) (take idx s)) (cons i (nthrest s (inc idx)))))
 
 (defn ?conj
   "Same as conj, but skip the conj if v is nil"
@@ -182,14 +182,16 @@
   [collection item]
   (or (first (some-when (fn [{v 1}] (= v item)) (map-indexed vector collection))) -1))
 
-(defn update-last [s m]
+(defn update-last
   "Updates last item in sequence s by applying mapping method m to it."
+  [s m]
   (if (seq s)
     (assoc s (dec (count s)) (m (last s)))
     s))
 
-(defn update-first [s m]
+(defn update-first
   "Updates first item in sequence s by applying mapping method m to it."
+  [s m]
   (if (seq s)
     (assoc s 0 (m (first s)))
     s))
@@ -284,12 +286,14 @@
        (Hex/encodeHex)
        (clojure.string/join)))
 
-(defn str-greater? [this that]
+(defn str-greater?
   "Returns true if this is greater than that. Case insensitive."
+  [this that]
   (pos? (compare (string/lower-case this) (string/lower-case that))))
 
-(defn str-smaller? [this that]
+(defn str-smaller?
   "Returns true if this is smaller than that. Case insensitive."
+  [this that]
   (neg? (compare (string/lower-case this) (string/lower-case that))))
 
 
@@ -415,7 +419,6 @@
 
 
 ;;; Numbers
-
 
 (defn format-opt-prec
   [num precision]

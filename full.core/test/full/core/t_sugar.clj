@@ -130,7 +130,6 @@
   (juxt-partition odd? [1 2 3 4] remove filter) => ['(2 4) '(1 3)])
 
 
-
 (facts "about transients"
   (facts "first!"
     (first! (transient [4 2 8])) => 4
