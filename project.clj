@@ -22,6 +22,7 @@
         "full.http"
         "full.bootstrap"
         ; optional modules
+        "full.db"
         "full.rollbar"
         "full.rabbit"
         "full.liquibase"
