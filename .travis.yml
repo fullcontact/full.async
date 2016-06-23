@@ -1,0 +1,4 @@
+language: clojure
+script: lein midje
+jdk:
+  - oraclejdk8
