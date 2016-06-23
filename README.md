@@ -3,7 +3,7 @@
 A Clojure library that extends [core.async](https://github.com/clojure/core.async)
 with a number of convenience methods.
 
-[![Clojars Project](http://clojars.org/fullcontact/full.async/latest-version.svg)](http://clojars.org/fullcontact/full.async)
+[![Clojars Project](https://img.shields.io/clojars/v/fullcontact/full.async.svg)](https://clojars.org/fullcontact/full.async)
 [![Build Status](https://travis-ci.org/fullcontact/full.async.svg?branch=master)](https://travis-ci.org/fullcontact/full.async)
 
 ## Exception Handling
