@@ -56,9 +56,13 @@
   `(thread (try ~@body (catch Throwable e# e#))))
 
 (defmacro go-retry
-  [{:keys [exception retries delay error-fn]
-    :or {error-fn nil, exception Throwable, retries 5, delay 1}} & body]
-  `(let [error-fn# ~error-fn]
+  "Attempts to execute a go block and retries it if it fails. Retry conditions
+   can be set via error-fn function, on-error can be used for side-effects
+   after a failure occurs."
+  [{:keys [exception retries delay error-fn on-error]
+    :or {error-fn nil exception Throwable retries 5 delay 1 on-error nil}}
+   & body]
+  `(let [error-fn# ~error-fn on-error# ~on-error]
      (go-loop
        [retries# ~retries]
        (let [res# (try ~@body (catch Throwable e# e#))]
@@ -66,6 +70,7 @@
                   (or (not error-fn#) (error-fn# res#))
                   (> retries# 0))
            (do
+             (when on-error# (on-error# res#))
              (<! (async/timeout (* ~delay 1000)))
              (recur (dec retries#)))
            res#)))))
