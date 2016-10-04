@@ -214,7 +214,7 @@
           (async/close! out))))
     out))
 
-(defn partition-all>> [n in-ch & {:keys [out-ch]}]
+(defn ^:deprecated partition-all>> [n in-ch & {:keys [out-ch]}]
   "Batches results from input channel into vectors of n size and supplies
   them to ouput channel. If any input result is an exception, it is put onto
   output channel directly and ouput channel is closed."
