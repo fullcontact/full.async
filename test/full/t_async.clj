@@ -108,3 +108,15 @@
 (facts "full.async/count>"
   (fact (<!! (count> (async/to-chan [1 2 3 4]))) => 4)
   (fact (<!! (count> (async/to-chan []))) => 0))
+
+
+(defn- error-side-effect [_])
+
+(facts "full.async/go-retry"
+  (fact (<?? (go-retry {:retries 1} ((throw (Exception. "Foo"))))) =>
+    (throws Exception "Foo"))
+
+  (fact (<?? (go-retry {:retries 5 :on-error error-side-effect}
+                       (throw (Exception. "Foo"))))) =>
+    (throws Exception "Foo")
+    (provided (error-side-effect anything) => irrelevant :times 5))
