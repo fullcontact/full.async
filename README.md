@@ -62,4 +62,4 @@ returning a new channel with results.
 
 ## License
 
-Copyright (C) 2015 FullContact. Distributed under the Eclipse Public License, the same as Clojure.
+Copyright (C) 2016 FullContact. Distributed under the Eclipse Public License, the same as Clojure.

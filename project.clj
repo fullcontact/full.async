@@ -7,8 +7,8 @@
   :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/core.async "0.2.395"]]
+  :aliases {"at" ["test-refresh"]}
   :aot :all
-  :plugins [[lein-midje "3.1.3"]]
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version" "leiningen.release/bump-version" "release"]
                   ["vcs" "commit"]
@@ -17,4 +17,4 @@
                   ["change" "version" "leiningen.release/bump-version"]
                   ["vcs" "commit"]
                   ["vcs" "push"]]
-  :profiles {:dev {:dependencies [[midje "1.7.0"]]}})
+  :profiles {:dev {:plugins [[com.jakemccrary/lein-test-refresh "0.17.0"]]}})
