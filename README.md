@@ -76,6 +76,10 @@ zero/single value channel as input are prefixed with `<` (for example `<?`).
 sufixed with `>>`. Similarly operators that expect zero to many value channel as
 input are prefixed with `<<` (for example `<<?`).
 
+## Change Log
+
+See [CHANGES.md](CHANGES).
+
 ## License
 
 Copyright (C) 2016 FullContact. Distributed under the Eclipse Public License, the same as Clojure.

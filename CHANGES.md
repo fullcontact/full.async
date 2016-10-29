@@ -1,9 +1,16 @@
 # full.async changelog
 
+## 1.0.0
+
+* ClojureScript support
+* `debounce>>`
+* `go-retry` now supports `should-retry-fn` parameter. `error-fn` param is 
+deprecated
+* Removed `try<?` and `try<??`
 
 ## 0.9.2
 
-* `go-retry` accepts `on-error` argument
+* `go-retry` now supports `on-error` parameter
 
 ```clojure
 (go-retry {:on-error (fn [exception]
@@ -11,5 +18,3 @@
            :retries 3}
   (<? (async-operation)))
 ```
-
-* `partition-all>>` is now deprecated.
