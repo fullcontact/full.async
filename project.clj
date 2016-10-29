@@ -9,15 +9,14 @@
                  [org.clojure/clojurescript "1.9.293"]
                  [org.clojure/core.async "0.2.395"]]
   :aliases {"at" ["test-refresh"]
-            "ats" ["do" "clean," "cljsbuild" "auto" "test"]}
-  :cljsbuild {:test-commands {"test" ["phantomjs" :runner "target/test.js"]}
-              :builds [{:id "test"
-                        :notify-command ["phantomjs" :cljs.test/runner "target/test.js"]
-                        :source-paths ["src" "test"]
-                        :compiler {:output-to "target/test.js"
-                                   :optimizations :whitespace
-                                   :pretty-print true}}]}
+            "ats" ["doo" "phantom"]}
   :aot :all
+  :cljsbuild {:builds {:test {:source-paths ["src" "test"]
+                              :compiler {:output-to "target/test.js"
+                                         :main 'full.test-runner
+                                         :optimizations :simple
+                                         :pretty-print true}}}}
+  :doo {:build "test"}
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version" "leiningen.release/bump-version" "release"]
                   ["vcs" "commit"]
@@ -28,4 +27,4 @@
                   ["vcs" "push"]]
   :profiles {:dev {:plugins [[com.jakemccrary/lein-test-refresh "0.17.0"]
                              [lein-cljsbuild "1.1.4"]
-                             [com.cemerick/clojurescript.test "0.3.3"]]}})
+                             [lein-doo "0.1.7"]]}})
