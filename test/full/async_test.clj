@@ -1,7 +1,6 @@
 (ns full.async-test
   (:require [clojure.test :refer :all]
-            [full.async :as full.async :refer [<? <?? <<? <<! <<!! <<?? <!!*
-                                               <??* go-try go-retry]]
+            [full.async :refer :all]
             [clojure.core.async :refer [<!! >! >!! go] :as async]))
 
 (deftest test-<<!
@@ -35,7 +34,6 @@
                  ch))
          ["1" "2"])))
 
-; TODO this breaks? does seem to work on midje
 (deftest test-<<??
   (is (thrown? Exception
                (doall
@@ -56,6 +54,31 @@
          ["1" "2"]))
   (is (thrown? Exception
                (<??* [(go "1") (go (Exception. ))]))))
+
+(deftest test-go-retry
+  (is (thrown? Exception
+               (<?? (go-retry
+                      {:retries 1
+                       :delay 0.1}
+                      ((throw (Exception. "Foo")))))))
+  (let [times- (atom 0)
+        error-side-effect (fn [_] (swap! times- inc))]
+    (is (thrown? Exception
+                 (<?? (go-retry
+                        {:retries 5
+                         :delay 0.1
+                         :on-error error-side-effect}
+                        (throw (Exception. "Foo"))))))
+    (is (= 5 @times-)))
+  (let [times- (atom 0)]
+    (is (= (<?? (go-retry
+                  {:retries 5
+                   :delay   0.1}
+                  (if (> 3 (swap! times- inc))
+                    (throw (Exception. "Foo"))
+                    "Bar")))
+           "Bar"))
+    (is (= 3 @times-))))
 
 (deftest test-pmap>>
   (is (= (->> (let [ch (async/chan)]
@@ -96,28 +119,3 @@
 (deftest test-count>
   (is (= (<!! (full.async/count> (async/to-chan [1 2 3 4]))) 4))
   (is (= (<!! (full.async/count> (async/to-chan []))) 0)))
-
-(deftest test-go-retry
-  (is (thrown? Exception
-               (<?? (go-retry
-                      {:retries 1
-                       :delay 0.1}
-                      ((throw (Exception. "Foo")))))))
-  (let [times- (atom 0)
-        error-side-effect (fn [_] (swap! times- inc))]
-    (is (thrown? Exception
-                 (<?? (go-retry
-                        {:retries 5
-                         :delay 0.1
-                         :on-error error-side-effect}
-                        (throw (Exception. "Foo"))))))
-    (is (= 5 @times-)))
-  (let [times- (atom 0)]
-    (is (= (<?? (go-retry
-                  {:retries 5
-                   :delay   0.1}
-                  (if (> 3 (swap! times- inc))
-                    (throw (Exception. "Foo"))
-                    "Bar")))
-           "Bar"))
-    (is (= 3 @times-))))

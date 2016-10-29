@@ -1,6 +1,6 @@
 # full.async
 
-A Clojure library that extends [core.async](https://github.com/clojure/core.async)
+A Clojure and ClojureScript library that extends [core.async](https://github.com/clojure/core.async)
 with a number of convenience methods.
 
 [![Clojars Project](https://img.shields.io/clojars/v/fullcontact/full.async.svg)](https://clojars.org/fullcontact/full.async)
@@ -27,18 +27,17 @@ especially in distributed systems. The `go-retry` macro lets you achieve that,
 for example:
 
 ```clojure
-(go-retry {:error-fn (fn [ex] (= 409 (.getStatus ex)))
-           :exception HTTPException
-           :retries 3
-           :delay 5}
-  (make-some-http-request))
+(go-retry
+  {:should-retry-fn (fn [res] (= 409 (:status res)))
+   :retries 3
+   :delay 5}
+  (<? (make-some-http-request>)))
 ```
 
-The above method will invoke `make-some-http-request` in a `go` block. If it
-throws an exception of type `HTTPException` with a status code 409, `go-retry`
-will wait 5 seconds and try invoking `make-some-http-request` again. If it still
-fails after 3 attempts or a different type of exception is thrown, it will get
-returned via the result channel.
+The above method will invoke `(<? (make-some-http-request>)` in a `go` block. If
+it returns `{:status 409}`, `go-retry` will wait 5 seconds and try invoking
+`(<? (make-some-http-request>)` again. If it still fails after 3 attempts, the
+last will be returned via the result channel.
 
 ## Sequences & Collections
 
@@ -56,9 +55,21 @@ channels.
 
 ## Parallel Processing
 
-`pmap>>` lets you apply a function to channel's output in parallel,
-returning a new channel with results.
+`pmap>>` lets you apply an async function (ie. function that returns channel) to
+channel's output with a specified parallelism, returning a new channel with
+results.
 
+## Conventions
+
+For readability of code, `full.async` follows these conventions:
+* Async operators that throw exceptions use `?` in place of `!`, for example
+throwing counterpart of `<!` is `<?`.
+* Functions that return channel that will contain zero or one value (typically
+result of `go` blocks) are sufixed with `>`. Similarly operators that expect
+zero/single value channel as input are prefixed with `<` (for example `<?`).
+* Functions that return channel that will contain zero to many values are
+sufixed with `>>`. Similarly operators that expect zero to many value channel as
+input are prefixed with `<<` (for example `<<?`).
 
 ## License
 
