@@ -337,3 +337,20 @@
   "Counts items in a channel. Returns a channel with the item count."
   [ch]
   (async/reduce (fn [acc _] (inc acc)) 0 ch))
+
+(defn debounce>>
+  "Debounces channel. Forwards first item from input channel to output
+  immediately. After that one item every interval ms (if any). If there are more
+  items in between, they are dropped."
+  [ch interval]
+  (let [out (chan)]
+    (go-loop [last-val nil]
+      (let [val (or last-val (<! ch))
+            timer (async/timeout interval)]
+        (if (nil? val)
+          (async/close! out)
+          (let [[new-val ch] (async/alts! [ch timer])]
+            (condp = ch
+              timer (do (>! out val) (recur nil))
+              ch (recur new-val))))))
+    out))

@@ -1,7 +1,7 @@
 # full.async
 
 A Clojure and ClojureScript library that extends [core.async](https://github.com/clojure/core.async)
-with a number of convenience methods.
+with a number of convenience functions.
 
 [![Clojars Project](https://img.shields.io/clojars/v/fullcontact/full.async.svg)](https://clojars.org/fullcontact/full.async)
 [![Build Status](https://travis-ci.org/fullcontact/full.async.svg?branch=master)](https://travis-ci.org/fullcontact/full.async)
@@ -58,6 +58,11 @@ channels.
 `pmap>>` lets you apply an async function (ie. function that returns channel) to
 channel's output with a specified parallelism, returning a new channel with
 results.
+
+## Debouncing
+
+`debounce>>` takes input channel and only passes through values at specified
+rate, dropping the rest.
 
 ## Conventions
 
