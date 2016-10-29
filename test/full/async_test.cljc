@@ -186,13 +186,4 @@
        (is (= (<??* (list (go "1") (go "2")))
               ["1" "2"]))
        (is (thrown? Exception
-                    (<??* [(go "1") (go (Exception. ))]))))
-
-     (deftest test-try<??
-       (is (= (full.async/try<??
-                (go-try (throw (Exception.)))
-                false
-                (catch Exception _
-                  true))
-              true)))
-     ))
+                    (<??* [(go "1") (go (Exception. ))]))))))

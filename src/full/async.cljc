@@ -68,10 +68,6 @@
                 (cljs.core.async/<! ch#)
                 (<! ch#))))))
 
-     (defmacro try<?
-       [ch & body]
-       `(try (full.async/<? ~ch) ~@body))
-
      (defmacro alts?
        "Same as core.async alts! but throws an exception if the channel returns a
        throwable object."
@@ -198,10 +194,6 @@
        throwable object. Also will not crash if channel is nil."
        [ch]
        (throw-if-throwable (when ch (<!! ch))))
-
-     (defmacro try<??
-       [ch & body]
-       `(try (<?? ~ch) ~@body))
 
      (defmacro thread-try
        "Asynchronously executes the body in a thread. Returns a channel which
