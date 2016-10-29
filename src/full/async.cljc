@@ -1,28 +1,13 @@
 (ns full.async
   (:require #?(:clj [clojure.core.async :as async
-                     :refer [<! <!! >! go go-loop chan]])
-            #?(:cljs [cljs.core.async :as async
-                      :refer [>! <! chan]]))
+                     :refer [<! <!! >! go go-loop chan]]
+               :cljs [cljs.core.async :as async
+                      :refer [>! <! chan]])
+            #?(:clj [full.async.env :refer [if-cljs]]))
   #?(:clj (:import (clojure.core.async.impl.protocols ReadPort)))
-  #?(:cljs (:require-macros [cljs.core.async.macros :refer [go go-loop]])))
-
-
-;;; MACRO HELPERS
-
-
-#?(:clj
-   (do
-     (defn- cljs-env?
-       "Take the &env from a macro, and tell whether we are expanding into cljs."
-       [env]
-       (boolean (:ns env)))
-
-     (defmacro if-cljs
-       "Return then if we are generating cljs code and else for Clojure code.
-       https://groups.google.com/d/msg/clojurescript/iBY5HaQda4A/w1lAQi9_AwsJ"
-       [then else]
-       (if (cljs-env? &env) then else))))
-
+  #?(:cljs (:require-macros
+             [cljs.core.async.macros :refer [go go-loop]]
+             [full.async.env :refer [if-cljs]])))
 
 #?(:clj (do
           (defn exception? [x]
