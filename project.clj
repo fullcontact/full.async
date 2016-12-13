@@ -25,6 +25,5 @@
                   ["change" "version" "leiningen.release/bump-version"]
                   ["vcs" "commit"]
                   ["vcs" "push"]]
-  :profiles {:dev {:plugins [[com.jakemccrary/lein-test-refresh "0.17.0"]
-                             [lein-cljsbuild "1.1.4"]
+  :profiles {:dev {:plugins [[lein-cljsbuild "1.1.4"]
                              [lein-doo "0.1.7"]]}})
