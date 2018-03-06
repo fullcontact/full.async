@@ -282,10 +282,10 @@
     out))
 
 (defn partition-all>>
-  [n in-ch & {:keys [out-ch]}]
   "Batches results from input channel into vectors of n size and supplies
   them to ouput channel. If any input result is an exception, it is put onto
   output channel directly and ouput channel is closed."
+  [n in-ch & {:keys [out-ch]}]
   {:pre [(pos? n)]}
   (let [out-ch (or out-ch (chan))]
     (go-loop [batch []]
