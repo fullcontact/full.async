@@ -10,7 +10,6 @@
                  [org.clojure/core.async "0.2.395"]]
   :aliases {"at" ["test-refresh"]
             "ats" ["doo" "phantom"]}
-  :aot :all
   :cljsbuild {:builds {:test {:source-paths ["src" "test"]
                               :compiler {:output-to "target/test.js"
                                          :main 'full.test-runner
