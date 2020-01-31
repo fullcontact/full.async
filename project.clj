@@ -1,13 +1,13 @@
-(defproject fullcontact/full.async "1.0.1-SNAPSHOT"
+(defproject fullcontact/full.async "1.1.0"
   :description "Extensions and helpers for core.async."
   :url "https://github.com/fullcontact/full.async"
   :license {:name "Eclipse Public License - v 1.0"
             :url "http://www.eclipse.org/legal/epl-v10.html"
             :distribution :repo}
   :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]
-  :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.9.293"]
-                 [org.clojure/core.async "0.2.395"]]
+  :dependencies [[org.clojure/clojure "1.10.1"]
+                 [org.clojure/clojurescript "1.10.597"]
+                 [org.clojure/core.async "0.7.559"]]
   :aliases {"at" ["test-refresh"]
             "ats" ["doo" "phantom"]}
   :aot :all
